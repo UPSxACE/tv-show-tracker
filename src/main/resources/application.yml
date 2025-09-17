@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: tv-show-tracker
+  jpa:
+    show-sql: true
+  graphql:
+    graphiql:
+      enabled: true
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/${DATABASE_NAME:tv_tracker}_dev"
+    username: "${DATABASE_USERNAME:postgres}"
+    password: "${DATABASE_PASSWORD:postgres}"
+  docker:
+    compose:
+      file:
+        - "compose.yaml"
+app:
+  db:
+    name: "${DATABASE_NAME:tv_tracker}_dev"
+    max-size: "${DATABASE_MAX_SIZE:500}"
+tmdb:
+  api-key: "${TMDB_API_KEY}"
+resilience4j:
+  ratelimiter:
+    metrics:
+      enabled: true
+    instances:
+      rateLimiterApi:
+        register-health-indicator: true
+        limit-for-period: 25
+        limit-refresh-period: 3s
+        timeout-duration: 6s
+        allow-health-indicator-to-fail: true
+        subscribe-for-events: true
+        event-consumer-buffer-size: 200

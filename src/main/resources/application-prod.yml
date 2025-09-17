@@ -1,0 +1,18 @@
+spring:
+  jpa:
+    show-sql: false
+  graphql:
+    graphiql:
+      enabled: false
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/${DATABASE_NAME:tv_tracker}"
+    username: "${DATABASE_USERNAME:postgres}"
+    password: "${DATABASE_PASSWORD:postgres}"
+  docker:
+    compose:
+      file:
+        - "compose.production.yml"
+app:
+  db:
+    name: "${DATABASE_NAME:tv_tracker}"
+    max-size: "${DATABASE_MAX_SIZE:500}"
