@@ -6,6 +6,9 @@ spring:
   graphql:
     graphiql:
       enabled: true
+    schema:
+      introspection:
+        enabled: true
   datasource:
     url: "jdbc:postgresql://localhost:5432/${DATABASE_NAME:tv_tracker}_dev"
     username: "${DATABASE_USERNAME:postgres}"
