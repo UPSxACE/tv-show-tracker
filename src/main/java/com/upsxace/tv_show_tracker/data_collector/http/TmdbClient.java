@@ -17,7 +17,6 @@ public class TmdbClient {
     RestClient customClient;
 
     @PostConstruct
-    @RateLimiter(name = "tmdb")
     public void init(){
         customClient = RestClient.builder()
                 .baseUrl("https://api.themoviedb.org")

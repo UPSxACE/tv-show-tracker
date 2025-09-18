@@ -17,7 +17,7 @@ spring:
 app:
   db:
     name: "${DATABASE_NAME:tv_tracker}_dev"
-    max-size: "${DATABASE_MAX_SIZE:500}"
+    max-size: "${DATABASE_MAX_SIZE:100}"
 tmdb:
   api-key: "${TMDB_API_KEY}"
 resilience4j:

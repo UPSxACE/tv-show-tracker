@@ -6,7 +6,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.time.Duration;
+import java.time.LocalDate;
 
 @Component
 @RequiredArgsConstructor
@@ -23,13 +27,42 @@ public class ApiDataCollector {
 
     private final TmdbService tmdbService;
 
-    private int getCurrentDbSizeInMb(){
+    private int errorCount;
+    private LocalDate cooldownUntil;
+
+    private int getCurrentDbSizeInMb() {
         String sql = String.format("SELECT pg_database_size('%s');", dbName);
         var result = (Number) entityManager.createNativeQuery(sql).getSingleResult();
         return result.intValue() / 1024 / 1024;
     }
 
-    public boolean shouldContinueCollecting(){
+    public boolean shouldContinueCollecting() {
         return getCurrentDbSizeInMb() < dbMaxSizeMb;
+    }
+
+    @PostConstruct
+    public void init() {
+        tmdbService.collectGenres();
+    }
+
+    @Scheduled(fixedDelay = 5000)
+    public void backgroundTasks() {
+        if (cooldownUntil != null && LocalDate.now().isAfter(cooldownUntil)) {
+            // when cooldown time has passed, reset count
+            errorCount = 0;
+            cooldownUntil = null;
+        }
+
+        if (cooldownUntil != null) return;
+
+        try {
+            if(shouldContinueCollecting()) tmdbService.discover();
+        } catch (Exception e) {
+            errorCount++;
+            if (errorCount >= 3) {
+                // if more than 3 errors occur, stop sending requests for 2 minutes
+                cooldownUntil = LocalDate.now().plus(Duration.ofMinutes(2));
+            }
+        }
     }
 }
