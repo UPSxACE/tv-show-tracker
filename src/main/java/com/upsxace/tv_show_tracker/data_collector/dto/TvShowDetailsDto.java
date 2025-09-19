@@ -24,7 +24,7 @@ public class TvShowDetailsDto {
     private final Boolean in_production;
 
     public TvShow toModel(){
-        return TvShow.builder()
+        var tvShow = TvShow.builder()
                 .tmdbId(id)
                 .name(name)
                 .overview(overview)
@@ -36,6 +36,13 @@ public class TvShowDetailsDto {
                 .firstAirDate(LocalDate.parse(first_air_date))
                 .lastAirDate(LocalDate.parse(last_air_date))
                 .inProduction(in_production)
+                .seasons(seasons.stream().map(TvShowSeasonDto::toModel).toList())
                 .build();
+
+        tvShow.getSeasons().forEach(
+                s -> s.setTvShow(tvShow)
+        );
+
+        return tvShow;
     }
 }

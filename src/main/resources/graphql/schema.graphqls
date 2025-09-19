@@ -44,6 +44,7 @@ type TvShow {
     firstAirDate: String
     lastAirDate: String
     inProduction: Boolean!
+    seasons: [Season!]!
 }
 
 input TvShowOrderInput {
@@ -87,6 +88,14 @@ type ActorCredit {
     character: String!
     firstAirDate: String
     firstCreditAirDate: String
+}
+
+type Season {
+    id: ID!
+    seasonNumber: Int!
+    name: String!
+    episodeCount: Int!
+    airDate: String
 }
 
 input PageInput {

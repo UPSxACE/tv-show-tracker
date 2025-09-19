@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Component
@@ -32,7 +32,7 @@ public class ApiDataCollector {
     private final TmdbService tmdbService;
 
     private int errorCount;
-    private LocalDate cooldownUntil;
+    private LocalDateTime cooldownUntil;
 
     private int getCurrentDbSizeInMb() {
         String sql = String.format("SELECT pg_database_size('%s');", dbName);
@@ -51,7 +51,7 @@ public class ApiDataCollector {
 
     @Scheduled(fixedDelay = 10000)
     public void backgroundTasks() {
-        if (cooldownUntil != null && LocalDate.now().isAfter(cooldownUntil)) {
+        if (cooldownUntil != null && LocalDateTime.now().isAfter(cooldownUntil)) {
             // when cooldown time has passed, reset count
             errorCount = 0;
             cooldownUntil = null;
@@ -68,7 +68,7 @@ public class ApiDataCollector {
                 // if more than 3 errors occur, stop sending requests for 2 minutes
                 log.info("More than 2 errors have occurred. Resetting state and cooling down discovery for 2 minutes.");
                 tmdbService.resetState();
-                cooldownUntil = LocalDate.now().plus(Duration.ofMinutes(2));
+                cooldownUntil = LocalDateTime.now().plus(Duration.ofMinutes(2));
             }
         }
     }

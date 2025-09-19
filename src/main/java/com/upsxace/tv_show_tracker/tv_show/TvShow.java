@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "tv_shows")
@@ -47,4 +48,7 @@ public class TvShow {
 
     @Column
     private Boolean inProduction;
+
+    @OneToMany(mappedBy = "tvShow", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<Season> seasons;
 }
