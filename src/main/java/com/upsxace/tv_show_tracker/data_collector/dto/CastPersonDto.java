@@ -18,7 +18,6 @@ public class CastPersonDto {
                 .name(name)
                 .popularity(popularity)
                 .profileUrl("https://image.tmdb.org/t/p/original" + profile_path)
-                .character(character)
                 .build();
     }
 }

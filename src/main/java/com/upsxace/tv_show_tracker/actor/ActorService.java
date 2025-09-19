@@ -1,6 +1,6 @@
-package com.upsxace.tv_show_tracker.tv_show;
+package com.upsxace.tv_show_tracker.actor;
 
-import com.upsxace.tv_show_tracker.tv_show.graphql.AllTvShowsInput;
+import com.upsxace.tv_show_tracker.actor.graphql.AllActorsInput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,10 +10,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class TvShowService {
-    private final TvShowRepository tvShowRepository;
+public class ActorService {
+    private final ActorRepository actorRepository;
+    private final ActorCreditRepository actorCreditRepository;
 
-    private Pageable createPageable(AllTvShowsInput input) {
+    private Pageable createPageable(AllActorsInput input) {
         int page = 0;
         if (input != null && input.getPage() != null && input.getPage().getPage() != null) {
             page = input.getPage().getPage();
@@ -36,9 +37,8 @@ public class TvShowService {
         return PageRequest.of(page, pageSize, sort);
     }
 
-
-    public Page<TvShow> getAll(AllTvShowsInput input){
+    public Page<Actor> getAll(AllActorsInput input){
         Pageable pageable = createPageable(input);
-        return tvShowRepository.findAll(pageable);
+        return actorRepository.findAll(pageable);
     }
 }

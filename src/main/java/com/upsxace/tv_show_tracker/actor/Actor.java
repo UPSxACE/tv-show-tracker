@@ -24,7 +24,4 @@ public class Actor {
 
     @Column
     private String profileUrl;
-
-    @Column
-    private String character;
 }
