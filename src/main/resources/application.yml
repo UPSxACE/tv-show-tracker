@@ -18,9 +18,11 @@ spring:
       file:
         - "compose.yaml"
 app:
+  discovery:
+    enabled: "${DISCOVERY_ENABLED:true}"
   db:
     name: "${DATABASE_NAME:tv_tracker}_dev"
-    max-size: "${DATABASE_MAX_SIZE:100}"
+    max-size: "${DATABASE_MAX_SIZE:20}"
 tmdb:
   api-key: "${TMDB_API_KEY}"
 resilience4j:
@@ -31,8 +33,8 @@ resilience4j:
       rateLimiterApi:
         register-health-indicator: true
         limit-for-period: 25
-        limit-refresh-period: 3s
-        timeout-duration: 6s
+        limit-refresh-period: 2s
+        timeout-duration: 2s
         allow-health-indicator-to-fail: true
         subscribe-for-events: true
         event-consumer-buffer-size: 200

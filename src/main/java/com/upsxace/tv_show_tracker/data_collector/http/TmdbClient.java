@@ -35,6 +35,14 @@ public class TmdbClient {
     }
 
     @RateLimiter(name = "tmdb")
+    public GenreDto getTvGenre(Long id){
+        return customClient.get()
+                .uri("/3/genre/{id}", id)
+                .retrieve()
+                .body(GenreDto.class);
+    }
+
+    @RateLimiter(name = "tmdb")
     public TvShowsResponse getTvShows(int page){
         return customClient.get()
                 .uri(String.format("/3/discover/tv?page=%d&sort_by=popularity.desc", page))

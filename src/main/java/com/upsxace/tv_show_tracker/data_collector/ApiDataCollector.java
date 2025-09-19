@@ -5,6 +5,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.LocalDate;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ApiDataCollector {
@@ -19,8 +21,10 @@ public class ApiDataCollector {
     private String dbName;
     @Value("${app.db.max-size}")
     private Integer dbMaxSizeMb;
-    @Value("${tmdb.api-key")
+    @Value("${tmdb.api-key}")
     private String tmdbApiKey;
+    @Value("${discovery.enabled}")
+    private Boolean discoveryEnabled;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -37,7 +41,7 @@ public class ApiDataCollector {
     }
 
     public boolean shouldContinueCollecting() {
-        return getCurrentDbSizeInMb() < dbMaxSizeMb;
+        return discoveryEnabled && getCurrentDbSizeInMb() < dbMaxSizeMb;
     }
 
     @PostConstruct
@@ -45,7 +49,7 @@ public class ApiDataCollector {
         tmdbService.collectGenres();
     }
 
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 10000)
     public void backgroundTasks() {
         if (cooldownUntil != null && LocalDate.now().isAfter(cooldownUntil)) {
             // when cooldown time has passed, reset count
@@ -58,9 +62,12 @@ public class ApiDataCollector {
         try {
             if(shouldContinueCollecting()) tmdbService.discover();
         } catch (Exception e) {
+            log.error("An error occurred while trying to discover. Error count: {}", errorCount);
             errorCount++;
             if (errorCount >= 3) {
                 // if more than 3 errors occur, stop sending requests for 2 minutes
+                log.info("More than 2 errors have occurred. Resetting state and cooling down discovery for 2 minutes.");
+                tmdbService.resetState();
                 cooldownUntil = LocalDate.now().plus(Duration.ofMinutes(2));
             }
         }

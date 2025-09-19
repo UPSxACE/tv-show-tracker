@@ -1,0 +1,1 @@
+ALTER TABLE public.actor_credit ALTER COLUMN first_credit_air_date DROP NOT NULL;
