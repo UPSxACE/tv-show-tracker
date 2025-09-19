@@ -1,18 +1,19 @@
 package com.upsxace.tv_show_tracker.actor;
 
 import com.upsxace.tv_show_tracker.actor.graphql.AllActorsInput;
+import com.upsxace.tv_show_tracker.data_collector.http.TmdbService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ActorService {
     private final ActorRepository actorRepository;
     private final ActorCreditRepository actorCreditRepository;
+    private final TmdbService tmdbService;
 
     private Pageable createPageable(AllActorsInput input) {
         int page = 0;
@@ -40,5 +41,16 @@ public class ActorService {
     public Page<Actor> getAll(AllActorsInput input){
         Pageable pageable = createPageable(input);
         return actorRepository.findAll(pageable);
+    }
+
+    public List<ActorCredit> getActorCredits(Long actorId){
+        var example = Example.of(ActorCredit.builder().actorId(actorId).build());
+        var credits = actorCreditRepository.findAll(example);
+        if(credits.isEmpty()){
+            var actor = actorRepository.findById(actorId).orElseThrow(IllegalStateException::new); // TODO replace by not found error
+            tmdbService.discoverCredits(actorId, actor.getTmdbId());
+            return actorCreditRepository.findAll(example);
+        }
+        return credits;
     }
 }

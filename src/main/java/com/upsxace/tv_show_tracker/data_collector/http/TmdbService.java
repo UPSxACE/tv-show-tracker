@@ -140,6 +140,8 @@ public class TmdbService {
 
     @Transactional
     public void discoverCredits(Long actorId, Long tmdbId){
+        log.info("Discovering credits...");
+
         var creditsModels = tmdbClient.getPersonTvShowCredits(tmdbId).stream().map(c -> {
             var tvShowId = tvShowRepository.findByTmdbId(c.getId()).map(TvShow::getId).orElse(null);
             return c.toModel(tvShowId, actorId);

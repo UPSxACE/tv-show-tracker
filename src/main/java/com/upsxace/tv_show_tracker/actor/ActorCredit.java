@@ -33,7 +33,6 @@ public class ActorCredit {
     @Column
     private String overview;
 
-
     @Column
     private Double popularity;
 
