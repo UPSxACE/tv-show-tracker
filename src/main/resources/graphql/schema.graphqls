@@ -1,8 +1,62 @@
 type Query {
     allGenres: [Genre!]!
+    allTvShows(input: AllTvShowsInput): AllTvShowsPage!
+}
+
+type AllTvShowsPage {
+    total: Int!
+    content: [TvShow!]!
+    pageable: Pageable!
+}
+
+input AllTvShowsInput {
+    page: PageInput,
+    order: TvShowOrderInput
 }
 
 type Genre {
     id: ID!
     name: String!
+}
+
+type TvShow {
+    id: ID!
+    name: String!
+    overview: String!
+    posterUrl: String!
+    popularity: Float!
+    voteAverage: Float!
+    numberOfSeasons: Int!
+    numberOfEpisodes: Int!
+    firstAirDate: String
+    lastAirDate: String
+    inProduction: Boolean!
+}
+
+input TvShowOrderInput {
+    field: TvShowSortableField!
+    direction: SortDirection = ASC
+}
+
+enum TvShowSortableField {
+    id,
+    name,
+    popularity,
+    voteAverage,
+    firstAirDate
+}
+
+input PageInput {
+    page: Int = 1
+    size: Int = 1
+}
+
+enum SortDirection {
+    ASC
+    DESC
+}
+
+type Pageable {
+    pageNumber: Int!
+    pageSize: Int!
 }

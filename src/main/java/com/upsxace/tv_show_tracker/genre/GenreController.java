@@ -11,7 +11,7 @@ import java.util.List;
 public class GenreController {
     private final GenreService genreService;
 
-    @QueryMapping(name = "allGenres")
+    @QueryMapping
     public List<Genre> allGenres(){
         return genreService.getAll();
     }
