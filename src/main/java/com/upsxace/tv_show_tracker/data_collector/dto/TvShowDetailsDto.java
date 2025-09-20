@@ -1,10 +1,13 @@
 package com.upsxace.tv_show_tracker.data_collector.dto;
 
+import com.upsxace.tv_show_tracker.genre.Genre;
 import com.upsxace.tv_show_tracker.tv_show.TvShow;
+import com.upsxace.tv_show_tracker.tv_show.TvShowGenre;
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class TvShowDetailsDto {
@@ -23,7 +26,7 @@ public class TvShowDetailsDto {
     private final List<TvShowSeasonDto> seasons;
     private final Boolean in_production;
 
-    public TvShow toModel(){
+    public TvShow toModel(List<Long> genreIds){
         var tvShow = TvShow.builder()
                 .tmdbId(id)
                 .name(name)
@@ -38,6 +41,16 @@ public class TvShowDetailsDto {
                 .inProduction(in_production)
                 .seasons(seasons.stream().map(TvShowSeasonDto::toModel).toList())
                 .build();
+
+        tvShow.setTvShowGenres(
+                genreIds.stream()
+                        .map(gId -> TvShowGenre.builder()
+                                .tvShow(tvShow)
+                                .genre(Genre.builder().id(gId).build())
+                                .build()
+                        )
+                        .collect(Collectors.toSet())
+        );
 
         tvShow.getSeasons().forEach(
                 s -> s.setTvShow(tvShow)

@@ -45,6 +45,7 @@ type TvShow {
     lastAirDate: String
     inProduction: Boolean!
     seasons: [Season!]!
+    genres: [Genre!]!
 }
 
 input TvShowOrderInput {

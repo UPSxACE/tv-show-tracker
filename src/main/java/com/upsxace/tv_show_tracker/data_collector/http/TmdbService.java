@@ -10,6 +10,7 @@ import com.upsxace.tv_show_tracker.data_collector.dto.GenreDto;
 import com.upsxace.tv_show_tracker.data_collector.dto.TvShowDto;
 import com.upsxace.tv_show_tracker.genre.Genre;
 import com.upsxace.tv_show_tracker.genre.GenreRepository;
+import com.upsxace.tv_show_tracker.genre.GenreService;
 import com.upsxace.tv_show_tracker.tv_show.TvShow;
 import com.upsxace.tv_show_tracker.tv_show.TvShowRepository;
 import jakarta.annotation.PostConstruct;
@@ -32,6 +33,7 @@ public class TmdbService {
     private final TvShowRepository tvShowRepository;
     private final ActorRepository actorRepository;
     private final ActorCreditRepository actorCreditRepository;
+    private final GenreService genreService;
 
     private int pagesExplored = 0;
     private int totalPages = 0;
@@ -105,7 +107,8 @@ public class TmdbService {
             // if the tv show has any genre that is not in the database yet, add it
             addMissingGenresToDb(tvShowDetails.getGenres().stream().map(GenreDto::getId).toList());
 
-            var model = tvShowDetails.toModel();
+            var genreIds = genreService.mapToDbId(tvShowDetails.getGenres().stream().map(GenreDto::getId).toList());
+            var model = tvShowDetails.toModel(genreIds);
             tvShowModels.add(model);
 
             // fetch cast, and filter to get only actors

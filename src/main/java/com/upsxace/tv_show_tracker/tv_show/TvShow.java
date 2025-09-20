@@ -2,9 +2,12 @@ package com.upsxace.tv_show_tracker.tv_show;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "tv_shows")
@@ -49,6 +52,11 @@ public class TvShow {
     @Column
     private Boolean inProduction;
 
-    @OneToMany(mappedBy = "tvShow", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tvShow", cascade = CascadeType.ALL)
+    @Fetch(FetchMode.SUBSELECT)
     private List<Season> seasons;
+
+    @OneToMany(mappedBy = "tvShow", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
+    private Set<TvShowGenre> tvShowGenres;
 }

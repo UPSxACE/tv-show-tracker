@@ -22,7 +22,7 @@ app:
     enabled: "${DISCOVERY_ENABLED:true}"
   db:
     name: "${DATABASE_NAME:tv_tracker}_dev"
-    max-size: "${DATABASE_MAX_SIZE:20}"
+    max-size: "${DATABASE_MAX_SIZE:9}"
 tmdb:
   api-key: "${TMDB_API_KEY}"
 resilience4j:

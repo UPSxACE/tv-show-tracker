@@ -1,7 +1,10 @@
 package com.upsxace.tv_show_tracker.genre;
 
+import com.upsxace.tv_show_tracker.tv_show.TvShowGenre;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Set;
 
 @Entity
 @Table(name = "genres")
@@ -18,4 +21,7 @@ public class Genre {
 
     @Column
     private String name;
+
+    @OneToMany(mappedBy = "genre")
+    private Set<TvShowGenre> tvShowGenres;
 }

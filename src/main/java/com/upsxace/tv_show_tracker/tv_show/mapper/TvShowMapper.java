@@ -1,0 +1,24 @@
+package com.upsxace.tv_show_tracker.tv_show.mapper;
+
+import com.upsxace.tv_show_tracker.genre.Genre;
+import com.upsxace.tv_show_tracker.tv_show.TvShow;
+import com.upsxace.tv_show_tracker.tv_show.TvShowGenre;
+import com.upsxace.tv_show_tracker.tv_show.graphql.TvShowDto;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
+import java.util.List;
+import java.util.Set;
+
+@Mapper(componentModel = "spring")
+public interface TvShowMapper {
+    @Mapping(source = "tvShowGenres", target = "genres", qualifiedByName = "flattenGenres")
+    TvShowDto toDto(TvShow entity);
+    List<TvShowDto> toDtos(List<TvShow> entities);
+
+    @Named("flattenGenres")
+    default List<Genre> flattenGenres(Set<TvShowGenre> tvShowGenres){
+        return tvShowGenres.stream().map(TvShowGenre::getGenre).toList();
+    }
+}
