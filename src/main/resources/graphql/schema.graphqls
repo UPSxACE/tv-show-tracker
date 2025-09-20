@@ -12,8 +12,13 @@ type AllTvShowsPage {
 }
 
 input AllTvShowsInput {
+    filter: AllTvShowsFilterInput,
     page: PageInput,
     order: TvShowOrderInput
+}
+
+input AllTvShowsFilterInput {
+    genreId: Int,
 }
 
 type AllActorsPage {

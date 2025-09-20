@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class AllTvShowsInput {
+    private final AllTvShowsFilterInput filter;
     private final PageInput page;
     private final TvShowOrderInput order;
 }
