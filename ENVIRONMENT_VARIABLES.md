@@ -1,6 +1,7 @@
 # Environment Variables
 The following environment variables are accepted to set up the application:
 ```.env
+FRONTEND_URL=http://localhost:3000
 DISCOVERY_ENABLED=true
 DATABASE_NAME=tv_tracker_dev
 DATABASE_USERNAME=postgres

@@ -105,8 +105,8 @@ type Season {
 }
 
 input PageInput {
-    page: Int = 1
-    size: Int = 1
+    page: Int = 0
+    size: Int = 20
 }
 
 enum SortDirection {

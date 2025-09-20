@@ -18,6 +18,8 @@ spring:
       file:
         - "compose.yaml"
 app:
+  frontend:
+    url: "${FRONTEND_URL:http://localhost:3000}"
   discovery:
     enabled: "${DISCOVERY_ENABLED:true}"
   db:
