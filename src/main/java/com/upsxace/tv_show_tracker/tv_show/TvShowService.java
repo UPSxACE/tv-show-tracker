@@ -1,9 +1,11 @@
 package com.upsxace.tv_show_tracker.tv_show;
 
+import com.upsxace.tv_show_tracker.data_collector.http.TmdbService;
 import com.upsxace.tv_show_tracker.tv_show.graphql.AllTvShowsInput;
 import com.upsxace.tv_show_tracker.tv_show.graphql.TvShowDto;
 import com.upsxace.tv_show_tracker.tv_show.mapper.TvShowMapper;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class TvShowService {
     private final TvShowRepository tvShowRepository;
     private final TvShowMapper tvShowMapper;
+    private final TmdbService tmdbService;
 
     private Pageable createPageable(AllTvShowsInput input) {
         int page = 0;
@@ -49,10 +52,24 @@ public class TvShowService {
 
         var tvShows = tvShowRepository.findAllByIdIn(idsPage.getContent(), sort);
 
+        if(!tvShows.isEmpty())
+            Hibernate.initialize(tvShows.getFirst().getSeasons());
+
         return new PageImpl<>(
                 tvShowMapper.toDtos(tvShows),
                 pageable,
                 idsPage.getTotalElements()
         );
+    }
+
+    public TvShowDto getById(Long id){
+        var tvShow = tvShowRepository.findById(id).orElse(null);
+        if(tvShow != null) {
+            Hibernate.initialize(tvShow.getSeasons());
+            if(tvShow.getActorCredits().isEmpty()){
+                tmdbService.fillTvShowCredits(tvShow);
+            }
+        }
+        return tvShowMapper.toDto(tvShow);
     }
 }

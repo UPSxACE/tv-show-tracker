@@ -1,5 +1,6 @@
 package com.upsxace.tv_show_tracker.tv_show.graphql;
 
+import com.upsxace.tv_show_tracker.actor.ActorCredit;
 import com.upsxace.tv_show_tracker.genre.Genre;
 import com.upsxace.tv_show_tracker.tv_show.Season;
 import lombok.Data;
@@ -21,4 +22,5 @@ public class TvShowDto {
     private final Boolean inProduction;
     private final List<Season> seasons;
     private final List<Genre> genres;
+    private final List<ActorCredit> actorCredits;
 }

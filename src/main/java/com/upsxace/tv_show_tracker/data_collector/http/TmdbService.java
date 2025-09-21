@@ -16,12 +16,11 @@ import com.upsxace.tv_show_tracker.tv_show.TvShowRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -54,13 +53,11 @@ public class TmdbService {
         }
     }
 
-    public void resetState() {
+    public void skipPage() {
         synchronized (this) {
-            pagesExplored = 0;
-            totalPages = 0;
-            appPropertyService.upsertProperty("tmdb:pages-explored", "0");
-            appPropertyService.upsertProperty("tmdb:total-pages", "0");
-            log.info("Discovery state has been reset.");
+            if(totalPages > pagesExplored) {
+                saveState(pagesExplored + 1, totalPages);
+            }
         }
     }
 
@@ -87,6 +84,38 @@ public class TmdbService {
         genreRepository.saveAll(genres);
     }
 
+    private List<CastPersonDto> getActorsInCast(Long tmdbId){
+        // fetch cast, and filter to get only actors
+        return tmdbClient.getTvShowCredits(tmdbId)
+                .stream()
+                .filter(p -> p.getKnown_for_department().equals("Acting"))
+                .sorted(Comparator.comparingDouble(CastPersonDto::getPopularity))
+                .limit(6) // for now, only gather the 6 most popular actors
+                .toList();
+    }
+
+
+    @Transactional
+    private Set<Actor> getActorsInTvShow(Long tmdbId){
+        var actorsInCast = getActorsInCast(tmdbId);
+
+        var actorsAlreadyInDb = actorRepository.findByTmdbIdIn(actorsInCast.stream().map(CastPersonDto::getId).toList());
+
+        Set<Actor> actors = new HashSet<>();
+        for(var actorInCast : actorsInCast){
+            var inDb = actorsAlreadyInDb.stream().filter(a -> a.getTmdbId().equals(actorInCast.getId())).findFirst().orElse(null);
+            if(inDb != null){
+                actors.add(inDb);
+                continue;
+            }
+            // if actor not in database, then create new model
+            var newActorModel = actorInCast.toActorModel();
+            actors.add(newActorModel);
+        }
+
+        return actors;
+    }
+
     @Transactional
     public void discover() {
         if (totalPages > 0 && pagesExplored >= totalPages)
@@ -111,26 +140,7 @@ public class TmdbService {
             var model = tvShowDetails.toModel(genreIds);
             tvShowModels.add(model);
 
-            // fetch cast, and filter to get only actors
-            var actorsInCast = tmdbClient.getTvShowCredits(tvShowDetails.getId())
-                    .stream()
-                    .filter(p -> p.getKnown_for_department().equals("Acting"))
-                    .sorted((p1, p2) -> (int) (p1.getPopularity() - p2.getPopularity()))
-                    .limit(6) // for now, only gather the 6 most popular actors
-                    .toList();
-
-            var actorsAlreadyInDb = actorRepository.findByTmdbIdIn(actorsInCast.stream().map(CastPersonDto::getId).toList());
-
-            for(var actorInCast : actorsInCast){
-                var inDb = actorsAlreadyInDb.stream().filter(a -> a.getTmdbId().equals(actorInCast.getId())).findFirst().orElse(null);
-                if(inDb != null){
-                    actors.add(inDb);
-                    continue;
-                }
-                // if actor not in database, then create new model
-                var newActorModel = actorInCast.toActorModel();
-                actors.add(newActorModel);
-            }
+            actors.addAll(getActorsInTvShow(tvShowDetails.getId()));
         }
 
         // save all tv show and actor changes
@@ -142,12 +152,12 @@ public class TmdbService {
     }
 
     @Transactional
-    public void discoverCredits(Long actorId, Long tmdbId){
-        log.info("Discovering credits...");
+    public List<ActorCredit> discoverActorCredits(Actor actor, Long tmdbId){
+        log.info("Discovering actor credits...");
 
         var creditsModels = tmdbClient.getPersonTvShowCredits(tmdbId).stream().map(c -> {
-            var tvShowId = tvShowRepository.findByTmdbId(c.getId()).map(TvShow::getId).orElse(null);
-            return c.toModel(tvShowId, actorId);
+            var tvShow = tvShowRepository.findByTmdbId(c.getId()).orElse(null);
+            return c.toModel(tvShow, actor);
         }).toList();
 
         var creditsInDbIds = actorCreditRepository
@@ -160,6 +170,52 @@ public class TmdbService {
                 .filter(c -> !creditsInDbIds.contains(c.getTmdbId()))
                 .toList();
 
-        actorCreditRepository.saveAll(newCredits);
+        actorCreditRepository.saveAllAndFlush(newCredits);
+        return newCredits;
+    }
+
+    @Transactional
+    public void fillTvShowCredits(TvShow tvShow){
+        log.info("Discovering tv show credits...");
+
+        var actorsInCast = getActorsInCast(tvShow.getTmdbId());
+        var actorsAlreadyInDb = actorRepository.findByTmdbIdIn(actorsInCast.stream().map(CastPersonDto::getId).toList());
+
+        Set<Actor> newActors = new HashSet<>();
+        List<ActorCredit> credits = new ArrayList<>();
+
+        for(var actorInCast : actorsInCast){
+            var inDb = actorsAlreadyInDb.stream().filter(a -> a.getTmdbId().equals(actorInCast.getId())).findFirst().orElse(null);
+            if(inDb != null){
+                var newCredits = discoverActorCredits(inDb, inDb.getTmdbId());
+                credits.addAll(newCredits);
+                continue;
+            }
+            // if actor not in database, then create new model
+            var newActorModel = actorInCast.toActorModel();
+            newActors.add(newActorModel);
+        }
+
+        // save changes to all actors
+        actorRepository.saveAll(newActors);
+
+        var creditsFromCurrent = credits.stream()
+                .filter(c -> c.getTvShowTmdbId().equals(tvShow.getTmdbId()))
+                .toList();
+
+        // iterate credits from this tv show, and if there is any from this movie that is not correctly linked yet, link it
+        creditsFromCurrent.forEach(c -> {
+            if(c.getTvShow() == null){
+                c.setTvShow(tvShow);
+            }
+            c.setTvShowId(c.getTvShow().getId());
+            c.setActorId(c.getActor().getId());
+        });
+
+        actorCreditRepository.saveAllAndFlush(credits);
+
+        tvShow.setActorCredits(creditsFromCurrent);
+
+        if(!credits.isEmpty()) Hibernate.initialize(credits.getFirst().getActor());
     }
 }

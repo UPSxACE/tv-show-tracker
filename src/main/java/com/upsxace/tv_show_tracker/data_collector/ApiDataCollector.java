@@ -66,8 +66,8 @@ public class ApiDataCollector {
             errorCount++;
             if (errorCount >= 3) {
                 // if more than 3 errors occur, stop sending requests for 2 minutes
-                log.info("More than 2 errors have occurred. Resetting state and cooling down discovery for 2 minutes.");
-                tmdbService.resetState();
+                log.info("More than 2 errors have occurred. Skipping page and cooling down discovery for 2 minutes.");
+                tmdbService.skipPage();
                 cooldownUntil = LocalDateTime.now().plus(Duration.ofMinutes(2));
             }
         }

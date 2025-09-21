@@ -1,5 +1,6 @@
 package com.upsxace.tv_show_tracker.tv_show;
 
+import com.upsxace.tv_show_tracker.actor.ActorCredit;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
@@ -57,6 +58,8 @@ public class TvShow {
     private List<Season> seasons;
 
     @OneToMany(mappedBy = "tvShow", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Fetch(FetchMode.SUBSELECT)
     private Set<TvShowGenre> tvShowGenres;
+
+    @OneToMany(mappedBy = "tvShow")
+    private List<ActorCredit> actorCredits;
 }

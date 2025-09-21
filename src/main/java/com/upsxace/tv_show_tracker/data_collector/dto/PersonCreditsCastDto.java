@@ -1,7 +1,9 @@
 package com.upsxace.tv_show_tracker.data_collector.dto;
 
+import com.upsxace.tv_show_tracker.actor.Actor;
 import com.upsxace.tv_show_tracker.actor.ActorCredit;
 import com.upsxace.tv_show_tracker.common.utils.DateUtils;
+import com.upsxace.tv_show_tracker.tv_show.TvShow;
 import lombok.Data;
 
 @Data
@@ -16,7 +18,7 @@ public class PersonCreditsCastDto {
     private final String first_air_date;
     private final String first_credit_air_date;
 
-    public ActorCredit toModel(Long tvShowId, Long actorId) {
+    public ActorCredit toModel(TvShow tvShow, Actor actor) {
         return ActorCredit.builder()
                 .tmdbId(credit_id)
                 .tvShowTmdbId(id)
@@ -26,8 +28,8 @@ public class PersonCreditsCastDto {
                 .character(character)
                 .firstAirDate(DateUtils.safeDateParse(first_air_date))
                 .firstCreditAirDate(DateUtils.safeDateParse(first_credit_air_date))
-                .tvShowId(tvShowId)
-                .actorId(actorId)
+                .tvShow(tvShow)
+                .actor(actor)
                 .build();
 
     }

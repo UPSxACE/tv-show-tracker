@@ -3,6 +3,7 @@ type Query {
     allTvShows(input: AllTvShowsInput): AllTvShowsPage!
     allActors(input: AllActorsInput): AllActorsPage!
     getActorCredits(actorId: Int!): [ActorCredit!]!
+    getTvShow(id: Int!): TvShow
 }
 
 type AllTvShowsPage {
@@ -51,6 +52,7 @@ type TvShow {
     inProduction: Boolean!
     seasons: [Season!]!
     genres: [Genre!]!
+    actorCredits: [ActorCredit!]!
 }
 
 input TvShowOrderInput {
@@ -94,6 +96,7 @@ type ActorCredit {
     character: String!
     firstAirDate: String
     firstCreditAirDate: String
+    actor: Actor!
 }
 
 type Season {

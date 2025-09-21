@@ -1,5 +1,6 @@
 package com.upsxace.tv_show_tracker.actor;
 
+import com.upsxace.tv_show_tracker.tv_show.TvShow;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,14 +16,14 @@ public class ActorCredit {
     @Column
     private Long id;
 
-    @Column
-    private String tmdbId;
+    @Column(name = "tv_show_id", insertable = false, updatable = false)
+    private Long tvShowId;
 
-    @Column
+    @Column(name = "actor_id", insertable = false, updatable = false)
     private Long actorId;
 
     @Column
-    private Long tvShowId;
+    private String tmdbId;
 
     @Column
     private Long tvShowTmdbId;
@@ -44,4 +45,12 @@ public class ActorCredit {
 
     @Column
     private LocalDate firstCreditAirDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tv_show_id")
+    private TvShow tvShow;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "actor_id")
+    private Actor actor;
 }
