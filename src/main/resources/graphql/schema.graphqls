@@ -7,6 +7,10 @@ type Query {
     getTvShow(id: Int!): TvShow
 }
 
+type Mutation {
+    registerUser(input: RegisterUserInput!): Boolean
+}
+
 type AllTvShowsPage {
     total: Int!
     content: [TvShow!]!
@@ -106,6 +110,12 @@ type Season {
     name: String!
     episodeCount: Int!
     airDate: String
+}
+
+input RegisterUserInput {
+    username: String!
+    password: String!
+    email: String!
 }
 
 input PageInput {
