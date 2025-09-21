@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class TvShowService {
@@ -40,10 +38,21 @@ public class TvShowService {
 
     public Page<TvShowDto> getAll(AllTvShowsInput input) {
         Pageable pageable = createPageable(input);
+        Sort sort = pageable.getSort();
+        Page<Long> idsPage;
 
-        if(input != null && input.getFilter() != null && input.getFilter().getGenreId() != null)
-            return tvShowMapper.toDtoPage(tvShowRepository.findAllByTvShowGenresGenreId(pageable, input.getFilter().getGenreId()));
+        if(input != null && input.getFilter() != null && input.getFilter().getGenreId() != null){
+            idsPage = tvShowRepository.findAllIdsByGenreId(pageable, input.getFilter().getGenreId());
+        } else {
+            idsPage = tvShowRepository.findAllIds(pageable);
+        }
 
-        return tvShowMapper.toDtoPage(tvShowRepository.findAll(pageable));
+        var tvShows = tvShowRepository.findAllByIdIn(idsPage.getContent(), sort);
+
+        return new PageImpl<>(
+                tvShowMapper.toDtos(tvShows),
+                pageable,
+                idsPage.getTotalElements()
+        );
     }
 }
