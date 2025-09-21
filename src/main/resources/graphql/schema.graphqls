@@ -1,10 +1,11 @@
 type Query {
-    allGenres: [Genre!]!
     allTvShows(input: AllTvShowsInput): AllTvShowsPage!
+    getTvShow(id: Int!): TvShow
+    favoriteTvShows(input: FavoriteTvShowsInput!): FavoriteTvShowsPage!
     allActors(input: AllActorsInput): AllActorsPage!
     getActor(id: Int!): Actor
     getActorCredits(actorId: Int!): [ActorCredit!]!
-    getTvShow(id: Int!): TvShow
+    allGenres: [Genre!]!
 }
 
 type Mutation {
@@ -12,38 +13,8 @@ type Mutation {
     loginUser(input: LoginUserInput!): JwtResponse!
     refreshToken: JwtResponse
     logout: Boolean!
-}
-
-type AllTvShowsPage {
-    total: Int!
-    content: [TvShow!]!
-    pageable: Pageable!
-}
-
-input AllTvShowsInput {
-    filter: AllTvShowsFilterInput,
-    page: PageInput,
-    order: TvShowOrderInput
-}
-
-input AllTvShowsFilterInput {
-    genreId: Int,
-}
-
-type AllActorsPage {
-    total: Int!
-    content: [Actor!]!
-    pageable: Pageable!
-}
-
-input AllActorsInput {
-    page: PageInput,
-    order: ActorOrderInput
-}
-
-type Genre {
-    id: ID!
-    name: String!
+    saveFavoriteTvShow(tvShowId: Int!): Boolean!
+    unfavoriteTvShow(tvShowId: Int!): Boolean!
 }
 
 type TvShow {
@@ -63,35 +34,11 @@ type TvShow {
     actorCredits: [ActorCredit!]!
 }
 
-input TvShowOrderInput {
-    field: TvShowSortableField!
-    direction: SortDirection = ASC
-}
-
-enum TvShowSortableField {
-    id,
-    name,
-    popularity,
-    voteAverage,
-    firstAirDate
-}
-
 type Actor {
     id: ID!
     name: String!
     popularity: Float!
     profileUrl: String!
-}
-
-input ActorOrderInput {
-    field: ActorSortableField!
-    direction: SortDirection = ASC
-}
-
-enum ActorSortableField {
-    id,
-    name,
-    popularity,
 }
 
 type ActorCredit {
@@ -107,12 +54,81 @@ type ActorCredit {
     actor: Actor!
 }
 
+type Genre {
+    id: ID!
+    name: String!
+}
+
 type Season {
     id: ID!
     seasonNumber: Int!
     name: String!
     episodeCount: Int!
     airDate: String
+}
+
+type UserFavoriteTvShow {
+    id: ID!
+    tvShow: TvShow!
+    favoritedAt: String!
+}
+
+type AllTvShowsPage {
+    total: Int!
+    content: [TvShow!]!
+    pageable: Pageable!
+}
+
+type AllActorsPage {
+    total: Int!
+    content: [Actor!]!
+    pageable: Pageable!
+}
+
+type FavoriteTvShowsPage {
+    total: Int!
+    content: [UserFavoriteTvShow!]!
+    pageable: Pageable!
+}
+
+input AllTvShowsInput {
+    filter: AllTvShowsFilterInput
+    page: PageInput
+    order: TvShowOrderInput
+}
+
+input AllTvShowsFilterInput {
+    genreId: Int
+}
+
+input AllActorsInput {
+    page: PageInput
+    order: ActorOrderInput
+}
+
+input FavoriteTvShowsInput {
+    page: PageInput
+    order: UserFavoriteTvShowOrderInput
+}
+
+input TvShowOrderInput {
+    field: TvShowSortableField!
+    direction: SortDirection = ASC
+}
+
+input ActorOrderInput {
+    field: ActorSortableField!
+    direction: SortDirection = ASC
+}
+
+input UserFavoriteTvShowOrderInput {
+    field: UserFavoriteSortableField!
+    direction: SortDirection = ASC
+}
+
+input PageInput {
+    page: Int = 0
+    size: Int = 20
 }
 
 input RegisterUserInput {
@@ -130,9 +146,9 @@ type JwtResponse {
     accessToken: String!
 }
 
-input PageInput {
-    page: Int = 0
-    size: Int = 20
+type Pageable {
+    pageNumber: Int!
+    pageSize: Int!
 }
 
 enum SortDirection {
@@ -140,7 +156,20 @@ enum SortDirection {
     DESC
 }
 
-type Pageable {
-    pageNumber: Int!
-    pageSize: Int!
+enum TvShowSortableField {
+    id
+    name
+    popularity
+    voteAverage
+    firstAirDate
+}
+
+enum ActorSortableField {
+    id
+    name
+    popularity
+}
+
+enum UserFavoriteSortableField {
+    favoritedAt
 }

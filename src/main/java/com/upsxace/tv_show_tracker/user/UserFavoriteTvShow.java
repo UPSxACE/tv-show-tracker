@@ -3,6 +3,9 @@ package com.upsxace.tv_show_tracker.user;
 import com.upsxace.tv_show_tracker.tv_show.TvShow;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user_favorite_tv_shows")
@@ -21,4 +24,8 @@ public class UserFavoriteTvShow {
     @ManyToOne
     @JoinColumn(name = "tv_show_id")
     private TvShow tvShow;
+
+    @Column
+    @CreationTimestamp
+    private LocalDateTime favoritedAt;
 }

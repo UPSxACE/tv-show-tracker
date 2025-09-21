@@ -17,6 +17,8 @@ public interface TvShowRepository extends JpaRepository<TvShow, Long> {
     Optional<TvShow> findById(@NotNull Long id);
 
     @EntityGraph(attributePaths = {"tvShowGenres", "tvShowGenres.genre", "actorCredits", "actorCredits.actor"})
+    List<TvShow> findAllByIdIn(List<Long> ids);
+    @EntityGraph(attributePaths = {"tvShowGenres", "tvShowGenres.genre", "actorCredits", "actorCredits.actor"})
     List<TvShow> findAllByIdIn(List<Long> ids, Sort sort);
     @Query("""
         SELECT t.id

@@ -4,10 +4,13 @@ import com.upsxace.tv_show_tracker.data_collector.http.TmdbService;
 import com.upsxace.tv_show_tracker.tv_show.graphql.AllTvShowsInput;
 import com.upsxace.tv_show_tracker.tv_show.graphql.TvShowDto;
 import com.upsxace.tv_show_tracker.tv_show.mapper.TvShowMapper;
+import com.upsxace.tv_show_tracker.user.UserFavoriteTvShowRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +18,7 @@ public class TvShowService {
     private final TvShowRepository tvShowRepository;
     private final TvShowMapper tvShowMapper;
     private final TmdbService tmdbService;
+    private final UserFavoriteTvShowRepository userFavoriteTvShowRepository;
 
     private Pageable createPageable(AllTvShowsInput input) {
         int page = 0;
@@ -71,5 +75,9 @@ public class TvShowService {
             }
         }
         return tvShowMapper.toDto(tvShow);
+    }
+
+    public List<TvShowDto> getAllById(List<Long> ids){
+        return tvShowMapper.toDtos(tvShowRepository.findAllByIdIn(ids));
     }
 }

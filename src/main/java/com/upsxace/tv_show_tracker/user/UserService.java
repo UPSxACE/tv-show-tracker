@@ -1,12 +1,18 @@
 package com.upsxace.tv_show_tracker.user;
 
+import com.upsxace.tv_show_tracker.common.exceptions.NotFoundException;
+import com.upsxace.tv_show_tracker.common.jwt.UserContext;
+import com.upsxace.tv_show_tracker.tv_show.TvShowRepository;
+import com.upsxace.tv_show_tracker.user.graphql.FavoriteTvShowsInput;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +21,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
+    private final TvShowRepository tvShowRepository;
+    private final UserFavoriteTvShowRepository userFavoriteTvShowRepository;
 
     @Override
     public UserDetails loadUserByUsername(String uuid) throws UsernameNotFoundException {
@@ -25,5 +33,49 @@ public class UserService implements UserDetailsService {
                 user.getPassword(),
                 List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );
+    }
+
+    private Pageable createPageable(FavoriteTvShowsInput input) {
+        int page = 0;
+        if (input != null && input.getPage() != null && input.getPage().getPage() != null) {
+            page = input.getPage().getPage();
+        }
+
+        Sort sort = Sort.unsorted();
+        if (input != null && input.getOrder() != null) {
+            var orderInput = input.getOrder();
+            Sort.Direction direction = Sort.Direction.ASC;
+            if (orderInput.getDirection() != null) {
+                direction = Sort.Direction.valueOf(orderInput.getDirection().name());
+            }
+            String sortField = orderInput.getField().name();
+            sort = Sort.by(direction, sortField);
+        }
+
+        int pageSize = (input != null && input.getPage() != null && input.getPage().getSize() != null)
+                ? Math.max(1, Math.min(20, input.getPage().getSize()))
+                : 20;
+        return PageRequest.of(page, pageSize, sort);
+    }
+
+    @Transactional
+    public void saveFavoriteTvShow(Long tvShowId, UserContext userCtx){
+        var tvShow = tvShowRepository.findById(tvShowId).orElseThrow(NotFoundException::new);
+        var base = UserFavoriteTvShow.builder().tvShow(tvShow).user(User.builder().id(userCtx.getId()).build()).build();
+        var userFavorite = userFavoriteTvShowRepository.findOne(Example.of(base)).orElse(base);
+        userFavoriteTvShowRepository.save(userFavorite);
+    }
+
+    @Transactional
+    public void unfavoriteTvShow(Long tvShowId, UserContext userCtx){
+        var tvShow = tvShowRepository.findById(tvShowId).orElseThrow(NotFoundException::new);
+        var base = UserFavoriteTvShow.builder().tvShow(tvShow).user(User.builder().id(userCtx.getId()).build()).build();
+        var userFavorite = userFavoriteTvShowRepository.findOne(Example.of(base)).orElse(base);
+        userFavoriteTvShowRepository.delete(userFavorite);
+    }
+
+    public Page<UserFavoriteTvShow> getFavoriteShows(FavoriteTvShowsInput input, UserContext userCtx){
+        Pageable pageable = createPageable(input);
+        return userFavoriteTvShowRepository.findAllByUserId(pageable, userCtx.getId());
     }
 }
