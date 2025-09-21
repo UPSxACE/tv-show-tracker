@@ -1,6 +1,5 @@
 package com.upsxace.tv_show_tracker.common.exceptions;
 
-import graphql.GraphQL;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
 import graphql.schema.DataFetchingEnvironment;
@@ -8,6 +7,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.graphql.execution.DataFetcherExceptionResolverAdapter;
 import org.springframework.graphql.execution.ErrorType;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -18,6 +18,7 @@ public class GraphqlExceptionHandler extends DataFetcherExceptionResolverAdapter
     protected GraphQLError resolveToSingleError(Throwable ex, @NotNull DataFetchingEnvironment env){
         return switch (ex) {
             case ConstraintViolationException violationEx -> buildViolationError(violationEx, env);
+            case BadCredentialsException badCredEx -> buildBadCredError(badCredEx, env);
             case GraphQLError gql -> wrapCustomGqlError(gql,env); // custom throwable graphql error
             default -> null;
         };
@@ -48,6 +49,15 @@ public class GraphqlExceptionHandler extends DataFetcherExceptionResolverAdapter
                                 ))
                                 .toList()
                 ))
+                .path(env.getExecutionStepInfo().getPath())
+                .build();
+    }
+
+    private GraphQLError buildBadCredError(BadCredentialsException ex, DataFetchingEnvironment env){
+        return GraphqlErrorBuilder
+                .newError()
+                .errorType(ErrorType.FORBIDDEN)
+                .message("Bad credentials.")
                 .path(env.getExecutionStepInfo().getPath())
                 .build();
     }

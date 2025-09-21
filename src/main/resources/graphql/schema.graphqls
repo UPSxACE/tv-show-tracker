@@ -8,7 +8,9 @@ type Query {
 }
 
 type Mutation {
-    registerUser(input: RegisterUserInput!): Boolean
+    registerUser(input: RegisterUserInput!): Boolean!
+    loginUser(input: LoginUserInput!): JwtResponse!
+    refreshToken: JwtResponse
 }
 
 type AllTvShowsPage {
@@ -116,6 +118,15 @@ input RegisterUserInput {
     username: String!
     password: String!
     email: String!
+}
+
+input LoginUserInput {
+    identifier: String!
+    password: String!
+}
+
+type JwtResponse {
+    accessToken: String!
 }
 
 input PageInput {

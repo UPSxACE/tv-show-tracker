@@ -8,4 +8,7 @@ DATABASE_USERNAME=postgres
 DATABASE_PASSWORD=postgres
 DATABASE_MAX_SIZE=9 #maximum size of the database in megabytes, before it stops fetching data from external api through discovery
 TMDB_API_KEY={your_api_key}
+JWT_SECRET=your_jwt_secret
+JWT_ACCESS_TOKEN_DURATION=1 #time in minutes that the access token should last
+JWT_REFRESH_TOKEN_DURATION=10080 #time in minutes that the refresh token should last
 ```

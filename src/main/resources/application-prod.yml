@@ -19,3 +19,8 @@ app:
   db:
     name: "${DATABASE_NAME:tv_tracker}"
     max-size: "${DATABASE_MAX_SIZE:25}"
+  jwt:
+    access-token:
+      duration: "${JWT_ACCESS_TOKEN_DURATION:10080}"
+    cookie:
+      secure: true

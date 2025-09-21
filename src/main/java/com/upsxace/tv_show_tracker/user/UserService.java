@@ -1,31 +1,29 @@
 package com.upsxace.tv_show_tracker.user;
 
-import com.upsxace.tv_show_tracker.common.exceptions.BadRequestException;
-import com.upsxace.tv_show_tracker.user.graphql.RegisterUserInput;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public boolean register(RegisterUserInput input){
-        if(userRepository.existsByEmail(input.getEmail()))
-            throw new BadRequestException("Email is already taken.");
-        if(userRepository.existsByUsername(input.getUsername()))
-            throw new BadRequestException("Username is already taken.");
+    @Override
+    public UserDetails loadUserByUsername(String uuid) throws UsernameNotFoundException {
+        var user = userRepository.findById(UUID.fromString(uuid)).orElseThrow(() -> new BadCredentialsException("Bad credentials."));
 
-        var newUser = User.builder()
-                .username(input.getUsername())
-                .email(input.getEmail())
-                .password(passwordEncoder.encode(input.getPassword()))
-                .build();
-
-        userRepository.save(newUser);
-
-        return true;
+        return new org.springframework.security.core.userdetails.User(
+                user.getId().toString(),
+                user.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
     }
 }
