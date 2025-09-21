@@ -11,6 +11,7 @@ type Mutation {
     registerUser(input: RegisterUserInput!): Boolean!
     loginUser(input: LoginUserInput!): JwtResponse!
     refreshToken: JwtResponse
+    logout: Boolean!
 }
 
 type AllTvShowsPage {

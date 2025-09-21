@@ -2,6 +2,7 @@ package com.upsxace.tv_show_tracker.user;
 
 import com.upsxace.tv_show_tracker.common.jwt.AuthService;
 import com.upsxace.tv_show_tracker.common.jwt.JwtConfig;
+import com.upsxace.tv_show_tracker.common.jwt.utils.TokenCookieUtils;
 import com.upsxace.tv_show_tracker.user.graphql.JwtResponse;
 import com.upsxace.tv_show_tracker.user.graphql.LoginUserInput;
 import com.upsxace.tv_show_tracker.user.graphql.RegisterUserInput;
@@ -29,8 +30,8 @@ public class UserController {
     @MutationMapping
     public JwtResponse loginUser(@Argument @Valid LoginUserInput input, GraphQLContext context){
         var result = authService.login(input);
-        context.put("refreshToken", result.getRefreshTokenOookie(jwtConfig));
-        context.put("accessToken", result.getAccessTokenCookie(jwtConfig));
+        context.put("refreshToken", TokenCookieUtils.getRefreshTokenOookie(jwtConfig, result.getRefreshToken()));
+        context.put("accessToken", TokenCookieUtils.getAccessTokenCookie(jwtConfig, result.getAccessToken()));
         return new JwtResponse(result.getAccessToken());
     }
 
@@ -43,7 +44,14 @@ public class UserController {
         if(result == null)
             return null;
 
-        context.put("accessToken", result.getAccessTokenCookie(jwtConfig));
+        context.put("accessToken", TokenCookieUtils.getRefreshTokenOookie(jwtConfig, result.getAccessToken()));
         return new JwtResponse(result.getAccessToken());
+    }
+
+    @MutationMapping
+    public boolean logout(GraphQLContext context){
+        context.put("accessToken", TokenCookieUtils.getAccessTokenDeleteCookie(jwtConfig));
+        context.put("refreshToken", TokenCookieUtils.getRefreshTokenDeleteOookie(jwtConfig));
+        return true;
     }
 }
