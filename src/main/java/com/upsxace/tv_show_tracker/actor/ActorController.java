@@ -20,6 +20,11 @@ public class ActorController {
     }
 
     @QueryMapping
+    public Actor getActor(@Argument Long id){
+        return actorService.getById(id);
+    }
+
+    @QueryMapping
     public List<ActorCredit> getActorCredits(@Argument Long actorId){
         return actorService.getActorCredits(actorId);
     }

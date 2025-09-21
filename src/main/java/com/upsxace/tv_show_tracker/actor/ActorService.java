@@ -2,7 +2,6 @@ package com.upsxace.tv_show_tracker.actor;
 
 import com.upsxace.tv_show_tracker.actor.graphql.AllActorsInput;
 import com.upsxace.tv_show_tracker.data_collector.http.TmdbService;
-import com.upsxace.tv_show_tracker.tv_show.TvShow;
 import com.upsxace.tv_show_tracker.tv_show.TvShowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -44,6 +43,10 @@ public class ActorService {
     public Page<Actor> getAll(AllActorsInput input){
         Pageable pageable = createPageable(input);
         return actorRepository.findAll(pageable);
+    }
+
+    public Actor getById(Long id){
+        return actorRepository.findById(id).orElse(null);
     }
 
     public List<ActorCredit> getActorCredits(Long actorId){

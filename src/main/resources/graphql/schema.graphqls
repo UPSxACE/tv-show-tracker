@@ -2,6 +2,7 @@ type Query {
     allGenres: [Genre!]!
     allTvShows(input: AllTvShowsInput): AllTvShowsPage!
     allActors(input: AllActorsInput): AllActorsPage!
+    getActor(id: Int!): Actor
     getActorCredits(actorId: Int!): [ActorCredit!]!
     getTvShow(id: Int!): TvShow
 }
