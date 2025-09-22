@@ -7,4 +7,5 @@ import java.util.UUID;
 
 public interface EmailRepository extends JpaRepository<Email, Long> {
     Optional<Email> findByUserIdAndTypeOrderBySentAtDesc(UUID userId, String type);
+    void deleteByUserId(UUID id);
 }

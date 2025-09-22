@@ -15,6 +15,7 @@ type Mutation {
     logout: Boolean!
     saveFavoriteTvShow(tvShowId: Int!): Boolean!
     unfavoriteTvShow(tvShowId: Int!): Boolean!
+    deleteAccount(input: ConfirmInput!): Boolean!
 }
 
 type TvShow {
@@ -95,6 +96,10 @@ input AllTvShowsInput {
     filter: AllTvShowsFilterInput
     page: PageInput
     order: TvShowOrderInput
+}
+
+input ConfirmInput {
+    confirm: Boolean!
 }
 
 input AllTvShowsFilterInput {

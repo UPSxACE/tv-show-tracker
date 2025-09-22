@@ -3,6 +3,7 @@ package com.upsxace.tv_show_tracker.user;
 import com.upsxace.tv_show_tracker.common.exceptions.NotFoundException;
 import com.upsxace.tv_show_tracker.common.jwt.UserContext;
 import com.upsxace.tv_show_tracker.experience.ExperienceService;
+import com.upsxace.tv_show_tracker.mailer.EmailRepository;
 import com.upsxace.tv_show_tracker.tv_show.TvShowRepository;
 import com.upsxace.tv_show_tracker.user.graphql.FavoriteTvShowsInput;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class UserService implements UserDetailsService {
     private final TvShowRepository tvShowRepository;
     private final UserFavoriteTvShowRepository userFavoriteTvShowRepository;
     private final ExperienceService experienceService;
+    private final EmailRepository emailRepository;
 
     @Override
     public UserDetails loadUserByUsername(String uuid) throws UsernameNotFoundException {
@@ -35,6 +37,13 @@ public class UserService implements UserDetailsService {
                 user.getPassword(),
                 List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );
+    }
+
+    @Transactional
+    public void deleteAccount(UserContext userCtx){
+        emailRepository.deleteByUserId(userCtx.getId());
+        userFavoriteTvShowRepository.deleteByUserId(userCtx.getId());
+        userRepository.deleteById(userCtx.getId());
     }
 
     private Pageable createPageable(FavoriteTvShowsInput input) {

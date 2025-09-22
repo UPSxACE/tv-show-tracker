@@ -6,10 +6,7 @@ import com.upsxace.tv_show_tracker.common.jwt.UserContext;
 import com.upsxace.tv_show_tracker.common.jwt.utils.TokenCookieUtils;
 import com.upsxace.tv_show_tracker.tv_show.TvShowService;
 import com.upsxace.tv_show_tracker.tv_show.graphql.TvShowDto;
-import com.upsxace.tv_show_tracker.user.graphql.FavoriteTvShowsInput;
-import com.upsxace.tv_show_tracker.user.graphql.JwtResponse;
-import com.upsxace.tv_show_tracker.user.graphql.LoginUserInput;
-import com.upsxace.tv_show_tracker.user.graphql.RegisterUserInput;
+import com.upsxace.tv_show_tracker.user.graphql.*;
 import graphql.GraphQLContext;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -100,5 +97,18 @@ public class UserController {
                         u.getTvShow().getId()
                 ))
                 .toList();
+    }
+
+    @MutationMapping
+    @Secured("ROLE_USER")
+    public boolean deleteAccount(@Argument ConfirmInput input, @ContextValue(required = false) UserContext userCtx, GraphQLContext context){
+        if(!input.isConfirm()) {
+            return false;
+        }
+
+        userService.deleteAccount(userCtx);
+        context.put("accessToken", TokenCookieUtils.getAccessTokenDeleteCookie(jwtConfig));
+        context.put("refreshToken", TokenCookieUtils.getRefreshTokenDeleteOookie(jwtConfig));
+        return true;
     }
 }

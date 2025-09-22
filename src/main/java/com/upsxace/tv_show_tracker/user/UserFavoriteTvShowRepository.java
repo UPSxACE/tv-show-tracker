@@ -13,4 +13,6 @@ public interface UserFavoriteTvShowRepository extends JpaRepository<UserFavorite
     Page<UserFavoriteTvShow> findAllByUserId(Pageable pageable, UUID userId);
     @EntityGraph(attributePaths = {"tvShow"})
     List<UserFavoriteTvShow> findFirst3ByUserIdOrderByFavoritedAtDesc(UUID userId);
+
+    void deleteByUserId(UUID id);
 }
