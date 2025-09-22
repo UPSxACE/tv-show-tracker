@@ -2,6 +2,7 @@ package com.upsxace.tv_show_tracker.user;
 
 import com.upsxace.tv_show_tracker.common.exceptions.NotFoundException;
 import com.upsxace.tv_show_tracker.common.jwt.UserContext;
+import com.upsxace.tv_show_tracker.experience.ExperienceService;
 import com.upsxace.tv_show_tracker.tv_show.TvShowRepository;
 import com.upsxace.tv_show_tracker.user.graphql.FavoriteTvShowsInput;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final TvShowRepository tvShowRepository;
     private final UserFavoriteTvShowRepository userFavoriteTvShowRepository;
+    private final ExperienceService experienceService;
 
     @Override
     public UserDetails loadUserByUsername(String uuid) throws UsernameNotFoundException {
@@ -64,6 +66,7 @@ public class UserService implements UserDetailsService {
         var base = UserFavoriteTvShow.builder().tvShow(tvShow).user(User.builder().id(userCtx.getId()).build()).build();
         var userFavorite = userFavoriteTvShowRepository.findOne(Example.of(base)).orElse(base);
         userFavoriteTvShowRepository.save(userFavorite);
+        experienceService.reactToFavorite(userCtx.getId());
     }
 
     @Transactional
@@ -72,6 +75,7 @@ public class UserService implements UserDetailsService {
         var base = UserFavoriteTvShow.builder().tvShow(tvShow).user(User.builder().id(userCtx.getId()).build()).build();
         var userFavorite = userFavoriteTvShowRepository.findOne(Example.of(base)).orElse(base);
         userFavoriteTvShowRepository.delete(userFavorite);
+        experienceService.reactToFavorite(userCtx.getId());
     }
 
     public Page<UserFavoriteTvShow> getFavoriteShows(FavoriteTvShowsInput input, UserContext userCtx){

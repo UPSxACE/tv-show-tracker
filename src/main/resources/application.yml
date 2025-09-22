@@ -17,6 +17,23 @@ spring:
     compose:
       file:
         - "compose.yaml"
+  mail:
+    host: "${SMTP_HOST:smtp.hostinger.com}"
+    port: "${SMTP_POST:587}"
+    username: "${SMTP_EMAIL:tekever@acehq.net}"
+    password: "${SMTP_PASSWORD:}"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            enable: false
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 app:
   frontend:
     url: "${FRONTEND_URL:http://localhost:3000}"

@@ -36,4 +36,7 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<UserFavoriteTvShow> favoriteTvShows;
+
+    @Column
+    private Boolean emailNotifications;
 }

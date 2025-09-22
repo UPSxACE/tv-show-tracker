@@ -12,4 +12,8 @@ JWT_SECRET=your_jwt_secret
 JWT_COOKIE_DOMAIN=localhost
 JWT_ACCESS_TOKEN_DURATION=1 #time in minutes that the access token should last
 JWT_REFRESH_TOKEN_DURATION=10080 #time in minutes that the refresh token should last
+SMTP_HOST=smtp.hostinger.com
+SMTP_POST=587
+SMTP_EMAIL=tekever@acehq.net
+SMTP_PASSWORD=Tekever1029#
 ```

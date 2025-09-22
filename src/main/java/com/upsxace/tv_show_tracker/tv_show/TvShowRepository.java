@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface TvShowRepository extends JpaRepository<TvShow, Long> {
     @NotNull
@@ -35,4 +36,16 @@ public interface TvShowRepository extends JpaRepository<TvShow, Long> {
     Page<Long> findAllIdsByGenreId(Pageable pageable, Long genreId);
     Optional<TvShow> findByTmdbId(Long tmdbId);
     List<TvShow> findByTmdbIdIn(List<Long> tmdbIds);
+
+    @Query("""
+            SELECT DISTINCT tv FROM TvShow tv
+            JOIN FETCH tv.tvShowGenres tg
+            WHERE tg.genre.id IN  :genreIds
+            AND NOT EXISTS (
+            SELECT 1 FROM tv.favoritedBy fb
+            WHERE fb.user.id = :userId
+         )
+       ORDER BY tv.voteAverage DESC
+       """)
+    List<TvShow> findRecommendations(UUID userId, List<Long> genreIds, Pageable pageable);
 }

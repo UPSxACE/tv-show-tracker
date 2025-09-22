@@ -38,7 +38,7 @@ public class UserController {
     @MutationMapping
     public JwtResponse loginUser(@Argument @Valid LoginUserInput input, GraphQLContext context){
         var result = authService.login(input);
-        context.put("refreshToken", TokenCookieUtils.getRefreshTokenOookie(jwtConfig, result.getRefreshToken()));
+        context.put("refreshToken", TokenCookieUtils.getRefreshTokenCookie(jwtConfig, result.getRefreshToken()));
         context.put("accessToken", TokenCookieUtils.getAccessTokenCookie(jwtConfig, result.getAccessToken()));
         return new JwtResponse(result.getAccessToken());
     }
@@ -52,7 +52,7 @@ public class UserController {
         if(result == null)
             return null;
 
-        context.put("accessToken", TokenCookieUtils.getRefreshTokenOookie(jwtConfig, result.getAccessToken()));
+        context.put("accessToken", TokenCookieUtils.getRefreshTokenCookie(jwtConfig, result.getAccessToken()));
         return new JwtResponse(result.getAccessToken());
     }
 

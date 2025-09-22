@@ -21,7 +21,7 @@ public class TokenCookieUtils {
         ).build().toString();
     }
 
-    public static String getRefreshTokenOookie(JwtConfig jwtConfig, String refreshToken) {
+    public static String getRefreshTokenCookie(JwtConfig jwtConfig, String refreshToken) {
         return applyDefaults(
                 ResponseCookie.from("refreshToken", refreshToken)
                         .httpOnly(true) // prevent JavaScript access

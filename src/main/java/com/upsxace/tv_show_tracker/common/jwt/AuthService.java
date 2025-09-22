@@ -14,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.sql.Ref;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +42,7 @@ public class AuthService {
                 .username(input.getUsername())
                 .email(input.getEmail())
                 .password(passwordEncoder.encode(input.getPassword()))
+                .emailNotifications(true)
                 .build();
 
         userRepository.save(newUser);

@@ -1,6 +1,7 @@
 package com.upsxace.tv_show_tracker.tv_show;
 
 import com.upsxace.tv_show_tracker.actor.ActorCredit;
+import com.upsxace.tv_show_tracker.user.UserFavoriteTvShow;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
@@ -62,4 +63,7 @@ public class TvShow {
 
     @OneToMany(mappedBy = "tvShow")
     private List<ActorCredit> actorCredits;
+
+    @OneToMany(mappedBy = "tvShow")
+    private Set<UserFavoriteTvShow> favoritedBy;
 }
