@@ -1,5 +1,6 @@
-package com.upsxace.tv_show_tracker.actor;
+package com.upsxace.tv_show_tracker.actor.repository;
 
+import com.upsxace.tv_show_tracker.actor.entity.ActorCredit;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.EntityGraph;

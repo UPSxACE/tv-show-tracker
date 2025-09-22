@@ -1,6 +1,9 @@
-package com.upsxace.tv_show_tracker.actor;
+package com.upsxace.tv_show_tracker.actor.controller;
 
+import com.upsxace.tv_show_tracker.actor.entity.ActorCredit;
+import com.upsxace.tv_show_tracker.actor.entity.Actor;
 import com.upsxace.tv_show_tracker.actor.graphql.AllActorsInput;
+import com.upsxace.tv_show_tracker.actor.service.ActorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.graphql.data.method.annotation.Argument;

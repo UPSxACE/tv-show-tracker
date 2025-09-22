@@ -1,11 +1,13 @@
-package com.upsxace.tv_show_tracker.user;
+package com.upsxace.tv_show_tracker.user.controller;
 
 import com.upsxace.tv_show_tracker.common.jwt.AuthService;
 import com.upsxace.tv_show_tracker.common.jwt.JwtConfig;
 import com.upsxace.tv_show_tracker.common.jwt.UserContext;
 import com.upsxace.tv_show_tracker.common.jwt.utils.TokenCookieUtils;
-import com.upsxace.tv_show_tracker.tv_show.TvShowService;
+import com.upsxace.tv_show_tracker.tv_show.service.TvShowService;
 import com.upsxace.tv_show_tracker.tv_show.graphql.TvShowDto;
+import com.upsxace.tv_show_tracker.user.entity.UserFavoriteTvShow;
+import com.upsxace.tv_show_tracker.user.service.UserService;
 import com.upsxace.tv_show_tracker.user.graphql.*;
 import graphql.GraphQLContext;
 import jakarta.validation.Valid;

@@ -1,9 +1,9 @@
 package com.upsxace.tv_show_tracker.data_collector.http;
 
-import com.upsxace.tv_show_tracker.actor.Actor;
-import com.upsxace.tv_show_tracker.actor.ActorCredit;
-import com.upsxace.tv_show_tracker.actor.ActorCreditRepository;
-import com.upsxace.tv_show_tracker.actor.ActorRepository;
+import com.upsxace.tv_show_tracker.actor.entity.Actor;
+import com.upsxace.tv_show_tracker.actor.entity.ActorCredit;
+import com.upsxace.tv_show_tracker.actor.repository.ActorCreditRepository;
+import com.upsxace.tv_show_tracker.actor.repository.ActorRepository;
 import com.upsxace.tv_show_tracker.common.app_property.AppPropertyService;
 import com.upsxace.tv_show_tracker.data_collector.dto.CastPersonDto;
 import com.upsxace.tv_show_tracker.data_collector.dto.GenreDto;
@@ -11,8 +11,8 @@ import com.upsxace.tv_show_tracker.data_collector.dto.TvShowDto;
 import com.upsxace.tv_show_tracker.genre.Genre;
 import com.upsxace.tv_show_tracker.genre.GenreRepository;
 import com.upsxace.tv_show_tracker.genre.GenreService;
-import com.upsxace.tv_show_tracker.tv_show.TvShow;
-import com.upsxace.tv_show_tracker.tv_show.TvShowRepository;
+import com.upsxace.tv_show_tracker.tv_show.entity.TvShow;
+import com.upsxace.tv_show_tracker.tv_show.repository.TvShowRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,8 +1,8 @@
 package com.upsxace.tv_show_tracker.tv_show.mapper;
 
 import com.upsxace.tv_show_tracker.genre.Genre;
-import com.upsxace.tv_show_tracker.tv_show.TvShow;
-import com.upsxace.tv_show_tracker.tv_show.TvShowGenre;
+import com.upsxace.tv_show_tracker.tv_show.entity.TvShow;
+import com.upsxace.tv_show_tracker.tv_show.entity.TvShowGenre;
 import com.upsxace.tv_show_tracker.tv_show.graphql.TvShowDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

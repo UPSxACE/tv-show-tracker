@@ -1,4 +1,4 @@
-package com.upsxace.tv_show_tracker.user;
+package com.upsxace.tv_show_tracker.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

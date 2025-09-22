@@ -1,10 +1,11 @@
-package com.upsxace.tv_show_tracker.tv_show;
+package com.upsxace.tv_show_tracker.tv_show.service;
 
 import com.upsxace.tv_show_tracker.data_collector.http.TmdbService;
 import com.upsxace.tv_show_tracker.tv_show.graphql.AllTvShowsInput;
 import com.upsxace.tv_show_tracker.tv_show.graphql.TvShowDto;
 import com.upsxace.tv_show_tracker.tv_show.mapper.TvShowMapper;
-import com.upsxace.tv_show_tracker.user.UserFavoriteTvShowRepository;
+import com.upsxace.tv_show_tracker.tv_show.repository.TvShowRepository;
+import com.upsxace.tv_show_tracker.user.repository.UserFavoriteTvShowRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.*;

@@ -1,6 +1,6 @@
-package com.upsxace.tv_show_tracker.user;
+package com.upsxace.tv_show_tracker.user.entity;
 
-import com.upsxace.tv_show_tracker.tv_show.TvShow;
+import com.upsxace.tv_show_tracker.tv_show.entity.TvShow;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

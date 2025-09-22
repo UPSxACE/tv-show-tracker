@@ -1,6 +1,6 @@
 package com.upsxace.tv_show_tracker.mailer;
 
-import com.upsxace.tv_show_tracker.user.User;
+import com.upsxace.tv_show_tracker.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

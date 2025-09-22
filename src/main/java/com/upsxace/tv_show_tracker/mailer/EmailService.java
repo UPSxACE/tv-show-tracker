@@ -1,7 +1,7 @@
 package com.upsxace.tv_show_tracker.mailer;
 
 import com.upsxace.tv_show_tracker.mailer.dto.TvShowRecommendation;
-import com.upsxace.tv_show_tracker.user.User;
+import com.upsxace.tv_show_tracker.user.entity.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;

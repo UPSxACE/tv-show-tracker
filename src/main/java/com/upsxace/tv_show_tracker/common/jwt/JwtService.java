@@ -2,8 +2,8 @@ package com.upsxace.tv_show_tracker.common.jwt;
 
 import com.upsxace.tv_show_tracker.common.exceptions.BadRequestException;
 import com.upsxace.tv_show_tracker.common.exceptions.NotFoundException;
-import com.upsxace.tv_show_tracker.user.User;
-import com.upsxace.tv_show_tracker.user.UserRepository;
+import com.upsxace.tv_show_tracker.user.entity.User;
+import com.upsxace.tv_show_tracker.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

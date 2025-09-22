@@ -1,8 +1,12 @@
-package com.upsxace.tv_show_tracker.actor;
+package com.upsxace.tv_show_tracker.actor.service;
 
+import com.upsxace.tv_show_tracker.actor.entity.ActorCredit;
+import com.upsxace.tv_show_tracker.actor.entity.Actor;
 import com.upsxace.tv_show_tracker.actor.graphql.AllActorsInput;
+import com.upsxace.tv_show_tracker.actor.repository.ActorCreditRepository;
+import com.upsxace.tv_show_tracker.actor.repository.ActorRepository;
 import com.upsxace.tv_show_tracker.data_collector.http.TmdbService;
-import com.upsxace.tv_show_tracker.tv_show.TvShowRepository;
+import com.upsxace.tv_show_tracker.tv_show.repository.TvShowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;

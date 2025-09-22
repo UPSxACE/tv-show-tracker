@@ -1,9 +1,9 @@
 package com.upsxace.tv_show_tracker.data_collector.dto;
 
-import com.upsxace.tv_show_tracker.actor.Actor;
-import com.upsxace.tv_show_tracker.actor.ActorCredit;
+import com.upsxace.tv_show_tracker.actor.entity.Actor;
+import com.upsxace.tv_show_tracker.actor.entity.ActorCredit;
 import com.upsxace.tv_show_tracker.common.utils.DateUtils;
-import com.upsxace.tv_show_tracker.tv_show.TvShow;
+import com.upsxace.tv_show_tracker.tv_show.entity.TvShow;
 import lombok.Data;
 
 @Data

@@ -1,7 +1,7 @@
-package com.upsxace.tv_show_tracker.tv_show;
+package com.upsxace.tv_show_tracker.tv_show.entity;
 
-import com.upsxace.tv_show_tracker.actor.ActorCredit;
-import com.upsxace.tv_show_tracker.user.UserFavoriteTvShow;
+import com.upsxace.tv_show_tracker.actor.entity.ActorCredit;
+import com.upsxace.tv_show_tracker.user.entity.UserFavoriteTvShow;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Fetch;

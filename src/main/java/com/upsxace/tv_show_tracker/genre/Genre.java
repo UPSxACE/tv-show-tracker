@@ -1,6 +1,6 @@
 package com.upsxace.tv_show_tracker.genre;
 
-import com.upsxace.tv_show_tracker.tv_show.TvShowGenre;
+import com.upsxace.tv_show_tracker.tv_show.entity.TvShowGenre;
 import jakarta.persistence.*;
 import lombok.*;
 

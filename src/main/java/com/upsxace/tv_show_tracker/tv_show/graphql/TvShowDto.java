@@ -1,8 +1,8 @@
 package com.upsxace.tv_show_tracker.tv_show.graphql;
 
-import com.upsxace.tv_show_tracker.actor.ActorCredit;
+import com.upsxace.tv_show_tracker.actor.entity.ActorCredit;
 import com.upsxace.tv_show_tracker.genre.Genre;
-import com.upsxace.tv_show_tracker.tv_show.Season;
+import com.upsxace.tv_show_tracker.tv_show.entity.Season;
 import lombok.Data;
 
 import java.util.List;

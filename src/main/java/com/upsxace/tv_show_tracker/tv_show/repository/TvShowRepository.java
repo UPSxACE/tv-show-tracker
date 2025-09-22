@@ -1,5 +1,6 @@
-package com.upsxace.tv_show_tracker.tv_show;
+package com.upsxace.tv_show_tracker.tv_show.repository;
 
+import com.upsxace.tv_show_tracker.tv_show.entity.TvShow;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

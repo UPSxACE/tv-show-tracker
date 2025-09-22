@@ -1,7 +1,8 @@
-package com.upsxace.tv_show_tracker.tv_show;
+package com.upsxace.tv_show_tracker.tv_show.controller;
 
-import com.upsxace.tv_show_tracker.actor.ActorCredit;
-import com.upsxace.tv_show_tracker.actor.ActorService;
+import com.upsxace.tv_show_tracker.actor.entity.ActorCredit;
+import com.upsxace.tv_show_tracker.actor.service.ActorService;
+import com.upsxace.tv_show_tracker.tv_show.service.TvShowService;
 import com.upsxace.tv_show_tracker.tv_show.graphql.AllTvShowsInput;
 import com.upsxace.tv_show_tracker.tv_show.graphql.TvShowDto;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.BatchMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;

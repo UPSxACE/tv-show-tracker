@@ -1,5 +1,6 @@
-package com.upsxace.tv_show_tracker.actor;
+package com.upsxace.tv_show_tracker.actor.repository;
 
+import com.upsxace.tv_show_tracker.actor.entity.Actor;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

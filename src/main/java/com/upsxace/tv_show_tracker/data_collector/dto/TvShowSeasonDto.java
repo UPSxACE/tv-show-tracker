@@ -1,8 +1,7 @@
 package com.upsxace.tv_show_tracker.data_collector.dto;
 
 import com.upsxace.tv_show_tracker.common.utils.DateUtils;
-import com.upsxace.tv_show_tracker.tv_show.Season;
-import com.upsxace.tv_show_tracker.tv_show.TvShow;
+import com.upsxace.tv_show_tracker.tv_show.entity.Season;
 import lombok.Data;
 
 @Data

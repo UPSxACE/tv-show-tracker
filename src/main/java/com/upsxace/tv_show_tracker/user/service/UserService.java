@@ -1,11 +1,15 @@
-package com.upsxace.tv_show_tracker.user;
+package com.upsxace.tv_show_tracker.user.service;
 
 import com.upsxace.tv_show_tracker.common.exceptions.NotFoundException;
 import com.upsxace.tv_show_tracker.common.jwt.UserContext;
 import com.upsxace.tv_show_tracker.experience.ExperienceService;
 import com.upsxace.tv_show_tracker.mailer.EmailRepository;
-import com.upsxace.tv_show_tracker.tv_show.TvShowRepository;
+import com.upsxace.tv_show_tracker.tv_show.repository.TvShowRepository;
+import com.upsxace.tv_show_tracker.user.entity.User;
+import com.upsxace.tv_show_tracker.user.entity.UserFavoriteTvShow;
 import com.upsxace.tv_show_tracker.user.graphql.FavoriteTvShowsInput;
+import com.upsxace.tv_show_tracker.user.repository.UserFavoriteTvShowRepository;
+import com.upsxace.tv_show_tracker.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.security.authentication.BadCredentialsException;
