@@ -14,8 +14,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Interceptor for GraphQL requests that injects JWT user context and handles
+ * access/refresh tokens via cookies.
+ */
 @Component
 public class JwtGraphqlInterceptor implements WebGraphQlInterceptor {
+
+    /**
+     * Retrieves the current authenticated user context from Spring Security.
+     *
+     * @return UserContext if authenticated, otherwise null
+     */
     private UserContext getUserContext(){
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -26,17 +36,24 @@ public class JwtGraphqlInterceptor implements WebGraphQlInterceptor {
         return (UserContext) authentication.getPrincipal();
     }
 
+    /**
+     * Intercepts GraphQL requests to inject user context and handle JWT tokens in cookies.
+     *
+     * @param request the incoming GraphQL request
+     * @param chain   interceptor chain
+     * @return Mono of GraphQL response
+     */
     @NotNull
     @Override
     public Mono<WebGraphQlResponse> intercept(@NotNull WebGraphQlRequest request, Chain chain) {
         Map<String, Object> ctx = new HashMap<>();
 
-        // inject user context from spring security in graphql context before request
+        // Inject user context from Spring Security into GraphQL context
         var userCtx = getUserContext();
         if(userCtx != null)
             ctx.put("userCtx", userCtx);
 
-        // inject current refresh token in context in case it needs to be verified to refresh a token
+        // Inject current refresh token from cookies into context
         var currentRefreshToken = Optional.of(request.getCookies())
                 .map(c -> c.get("refreshToken"))
                 .orElse(null);
@@ -44,11 +61,11 @@ public class JwtGraphqlInterceptor implements WebGraphQlInterceptor {
             ctx.put("currentRefreshToken", currentRefreshToken.getFirst().getValue());
         }
 
-        // set context
+        // Configure GraphQL context for this request
         request.configureExecutionInput((executionInput, builder) ->
                 builder.graphQLContext(ctx).build());
 
-        // check graphql context before response searching for new access/refresh tokens to be injected in the cookies
+        // After execution, set any new access/refresh tokens in response cookies
         return chain.next(request).doOnNext((response) -> {
             String refreshToken = response.getExecutionInput().getGraphQLContext().get("refreshToken");
             if(refreshToken != null)

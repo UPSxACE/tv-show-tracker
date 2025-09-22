@@ -13,14 +13,26 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Service responsible for managing TV shows, including fetching, mapping to DTOs,
+ * and retrieving from external APIs when needed.
+ */
 @Service
 @RequiredArgsConstructor
 public class TvShowService {
+
     private final TvShowRepository tvShowRepository;
     private final TvShowMapper tvShowMapper;
     private final TmdbService tmdbService;
     private final UserFavoriteTvShowRepository userFavoriteTvShowRepository;
 
+    /**
+     * Constructs a pageable object for paginated queries, applying optional sorting
+     * and limiting page size between 1 and 20.
+     *
+     * @param input The input containing pagination and sorting information
+     * @return Pageable object to use for repository queries
+     */
     private Pageable createPageable(AllTvShowsInput input) {
         int page = 0;
         if (input != null && input.getPage() != null && input.getPage().getPage() != null) {
@@ -44,21 +56,24 @@ public class TvShowService {
         return PageRequest.of(page, pageSize, sort);
     }
 
+    /**
+     * Retrieves all TV shows with optional filtering and pagination.
+     * Initializes the first show's seasons to prevent lazy loading issues.
+     *
+     * @param input Input containing filters, sorting, and pagination info
+     * @return Page of TV show DTOs
+     */
     public Page<TvShowDto> getAll(AllTvShowsInput input) {
         Pageable pageable = createPageable(input);
         Sort sort = pageable.getSort();
-        Page<Long> idsPage;
 
-        if(input != null && input.getFilter() != null && input.getFilter().getGenreId() != null){
-            idsPage = tvShowRepository.findAllIdsByGenreId(pageable, input.getFilter().getGenreId());
-        } else {
-            idsPage = tvShowRepository.findAllIds(pageable);
-        }
+        Page<Long> idsPage = (input != null && input.getFilter() != null && input.getFilter().getGenreId() != null)
+                ? tvShowRepository.findAllIdsByGenreId(pageable, input.getFilter().getGenreId())
+                : tvShowRepository.findAllIds(pageable);
 
         var tvShows = tvShowRepository.findAllByIdIn(idsPage.getContent(), sort);
 
-        if(!tvShows.isEmpty())
-            Hibernate.initialize(tvShows.getFirst().getSeasons());
+        if (!tvShows.isEmpty()) Hibernate.initialize(tvShows.getFirst().getSeasons());
 
         return new PageImpl<>(
                 tvShowMapper.toDtos(tvShows),
@@ -67,18 +82,29 @@ public class TvShowService {
         );
     }
 
-    public TvShowDto getById(Long id){
+    /**
+     * Retrieves a single TV show by its ID, initializing seasons and fetching
+     * actor credits if missing.
+     *
+     * @param id ID of the TV show
+     * @return TV show DTO or null if not found
+     */
+    public TvShowDto getById(Long id) {
         var tvShow = tvShowRepository.findById(id).orElse(null);
-        if(tvShow != null) {
+        if (tvShow != null) {
             Hibernate.initialize(tvShow.getSeasons());
-            if(tvShow.getActorCredits().isEmpty()){
-                tmdbService.fillTvShowCredits(tvShow);
-            }
+            if (tvShow.getActorCredits().isEmpty()) tmdbService.fillTvShowCredits(tvShow);
         }
         return tvShowMapper.toDto(tvShow);
     }
 
-    public List<TvShowDto> getAllById(List<Long> ids){
+    /**
+     * Retrieves multiple TV shows by their IDs.
+     *
+     * @param ids List of TV show IDs
+     * @return List of TV show DTOs
+     */
+    public List<TvShowDto> getAllById(List<Long> ids) {
         return tvShowMapper.toDtos(tvShowRepository.findAllByIdIn(ids));
     }
 }

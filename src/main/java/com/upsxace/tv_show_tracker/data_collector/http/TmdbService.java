@@ -22,6 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+/**
+ * Service responsible for interacting with the TMDB API to collect TV show, genre, and actor data.
+ * Handles discovery of new shows, genres, and actor credits and synchronizes with the local database.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -37,12 +41,18 @@ public class TmdbService {
     private int pagesExplored = 0;
     private int totalPages = 0;
 
+    /**
+     * Initializes TMDB discovery state from the database after bean construction.
+     */
     @PostConstruct
     public void loadStateFromDatabase() {
         pagesExplored = appPropertyService.readProperty("tmdb:pages-explored").map(Integer::parseInt).orElse(0);
         totalPages = appPropertyService.readProperty("tmdb:total-pages").map(Integer::parseInt).orElse(0);
     }
 
+    /**
+     * Saves the current discovery state (pages explored and total pages) to the database.
+     */
     public void saveState(int newPagesExplored, int newTotalPages) {
         synchronized (this) {
             pagesExplored = newPagesExplored;
@@ -53,6 +63,9 @@ public class TmdbService {
         }
     }
 
+    /**
+     * Skips the current page in discovery and updates state.
+     */
     public void skipPage() {
         synchronized (this) {
             if(totalPages > pagesExplored) {
@@ -61,6 +74,9 @@ public class TmdbService {
         }
     }
 
+    /**
+     * Collects all TV show genres from TMDB and stores any new genres in the database.
+     */
     @Transactional
     public void collectGenres() {
         var allGenres = tmdbClient.getTvGenreList();
@@ -76,6 +92,9 @@ public class TmdbService {
         genreRepository.saveAll(genresToInsert);
     }
 
+    /**
+     * Adds any missing genres to the database based on a list of TMDB genre IDs.
+     */
     @Transactional
     private void addMissingGenresToDb(List<Long> genreIds) {
         var idsInDb = genreRepository.findByTmdbIdIn(genreIds).stream().map(Genre::getTmdbId).toList();
@@ -84,21 +103,24 @@ public class TmdbService {
         genreRepository.saveAll(genres);
     }
 
+    /**
+     * Retrieves the top 6 actors in the cast of a TV show from TMDB, sorted by popularity.
+     */
     private List<CastPersonDto> getActorsInCast(Long tmdbId){
-        // fetch cast, and filter to get only actors
         return tmdbClient.getTvShowCredits(tmdbId)
                 .stream()
                 .filter(p -> p.getKnown_for_department().equals("Acting"))
                 .sorted(Comparator.comparingDouble(CastPersonDto::getPopularity))
-                .limit(6) // for now, only gather the 6 most popular actors
+                .limit(6)
                 .toList();
     }
 
-
+    /**
+     * Fetches Actor entities for a TV show, creating new Actor models if necessary.
+     */
     @Transactional
     private Set<Actor> getActorsInTvShow(Long tmdbId){
         var actorsInCast = getActorsInCast(tmdbId);
-
         var actorsAlreadyInDb = actorRepository.findByTmdbIdIn(actorsInCast.stream().map(CastPersonDto::getId).toList());
 
         Set<Actor> actors = new HashSet<>();
@@ -108,14 +130,15 @@ public class TmdbService {
                 actors.add(inDb);
                 continue;
             }
-            // if actor not in database, then create new model
-            var newActorModel = actorInCast.toActorModel();
-            actors.add(newActorModel);
+            actors.add(actorInCast.toActorModel());
         }
 
         return actors;
     }
 
+    /**
+     * Discovers new TV shows from TMDB and adds them to the database, including genres and actors.
+     */
     @Transactional
     public void discover() {
         if (totalPages > 0 && pagesExplored >= totalPages)
@@ -151,6 +174,9 @@ public class TmdbService {
         saveState(tvShowsResponse.getPage(), tvShowsResponse.getTotal_pages());
     }
 
+    /**
+     * Discovers TV show credits for a given actor and stores new credits in the database.
+     */
     @Transactional
     public List<ActorCredit> discoverActorCredits(Actor actor, Long tmdbId){
         log.info("Discovering actor credits...");
@@ -174,6 +200,9 @@ public class TmdbService {
         return newCredits;
     }
 
+    /**
+     * Fills actor credits for a given TV show, adding missing actors and linking credits.
+     */
     @Transactional
     public void fillTvShowCredits(TvShow tvShow){
         log.info("Discovering tv show credits...");
@@ -191,19 +220,15 @@ public class TmdbService {
                 credits.addAll(newCredits);
                 continue;
             }
-            // if actor not in database, then create new model
-            var newActorModel = actorInCast.toActorModel();
-            newActors.add(newActorModel);
+            newActors.add(actorInCast.toActorModel());
         }
 
-        // save changes to all actors
         actorRepository.saveAll(newActors);
 
         var creditsFromCurrent = credits.stream()
                 .filter(c -> c.getTvShowTmdbId().equals(tvShow.getTmdbId()))
                 .toList();
 
-        // iterate credits from this tv show, and if there is any from this movie that is not correctly linked yet, link it
         creditsFromCurrent.forEach(c -> {
             if(c.getTvShow() == null){
                 c.setTvShow(tvShow);
@@ -213,7 +238,6 @@ public class TmdbService {
         });
 
         actorCreditRepository.saveAllAndFlush(credits);
-
         tvShow.setActorCredits(creditsFromCurrent);
 
         if(!credits.isEmpty()) Hibernate.initialize(credits.getFirst().getActor());

@@ -19,16 +19,32 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Service for generating, validating, and refreshing JWT tokens.
+ * Supports both access and refresh tokens.
+ */
 @Service
 @RequiredArgsConstructor
 public class JwtService {
+
     private final JwtConfig jwtConfig;
     private final UserRepository userRepository;
 
+    /**
+     * Returns the secret key used for signing JWTs.
+     *
+     * @return SecretKey
+     */
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Parses the JWT and returns its claims.
+     *
+     * @param token JWT token
+     * @return Claims object
+     */
     public Claims getClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
@@ -37,6 +53,12 @@ public class JwtService {
                 .getPayload();
     }
 
+    /**
+     * Creates a UserContext from a valid access token.
+     *
+     * @param token JWT access token
+     * @return Optional UserContext, empty if token invalid
+     */
     public Optional<UserContext> createUserContextFromToken(String token) {
         try {
             var claims = getClaims(token);
@@ -46,13 +68,22 @@ public class JwtService {
                 throw new BadRequestException();
 
             var id = claims.getSubject();
-            var authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(claims.get("authorities", String.class));
+            var authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(
+                    claims.get("authorities", String.class)
+            );
             return Optional.of(new UserContext(UUID.fromString(id), authorities));
         } catch (JwtException ex) {
             return Optional.empty();
         }
     }
 
+    /**
+     * Generates a refresh token for a given user.
+     *
+     * @param user user entity
+     * @param amr authentication method references
+     * @return JWT refresh token string
+     */
     public String generateRefreshToken(User user, List<String> amr) {
         final long TOKEN_EXPIRATION_MS = jwtConfig.getRefreshToken().getDuration() * 60 * 1000;
 
@@ -67,13 +98,25 @@ public class JwtService {
                 .compact();
     }
 
+    /**
+     * Generates a refresh token by user ID.
+     *
+     * @param id user UUID
+     * @param amr authentication method references
+     * @return JWT refresh token string
+     */
     public String generateRefreshToken(UUID id, List<String> amr) {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found."));
-
         return generateRefreshToken(user, amr);
     }
 
+    /**
+     * Generates an access token for a given user.
+     *
+     * @param user user entity
+     * @return JWT access token string
+     */
     public String generateAccessToken(User user) {
         final long TOKEN_EXPIRATION_MS = jwtConfig.getAccessToken().getDuration() * 60 * 1000;
 
@@ -88,13 +131,24 @@ public class JwtService {
                 .compact();
     }
 
+    /**
+     * Generates an access token by user ID.
+     *
+     * @param id user UUID
+     * @return JWT access token string
+     */
     public String generateAccessToken(UUID id) {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found."));
-
         return generateAccessToken(user);
     }
 
+    /**
+     * Refreshes an access token using a valid refresh token.
+     *
+     * @param currentRefreshToken current refresh token
+     * @return Optional new access token, empty if refresh token invalid
+     */
     public Optional<String> refreshAccessToken(String currentRefreshToken){
         try {
             var claims = getClaims(currentRefreshToken);
@@ -104,7 +158,6 @@ public class JwtService {
                 throw new BadRequestException();
 
             var id = claims.getSubject();
-
             return Optional.of(generateAccessToken(UUID.fromString(id)));
         } catch (JwtException ex) {
             return Optional.empty();

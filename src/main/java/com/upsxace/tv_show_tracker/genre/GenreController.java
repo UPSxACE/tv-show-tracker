@@ -6,13 +6,22 @@ import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
+/**
+ * GraphQL controller for genre-related queries.
+ */
 @Controller
 @RequiredArgsConstructor
 public class GenreController {
+
     private final GenreService genreService;
 
+    /**
+     * Retrieves all genres.
+     *
+     * @return List of all Genre entities
+     */
     @QueryMapping
-    public List<Genre> allGenres(){
+    public List<Genre> allGenres() {
         return genreService.getAll();
     }
 }

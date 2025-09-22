@@ -14,12 +14,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
+/**
+ * Service responsible for handling user experience logic, such as reacting to favorite TV shows
+ * and sending personalized recommendations via email.
+ */
 @Component
 @RequiredArgsConstructor
 public class ExperienceService {
+
     private final UserFavoriteTvShowRepository userFavoriteTvShowRepository;
     private final EmailRepository emailRepository;
     private final TvShowRepository tvShowRepository;
@@ -30,45 +34,50 @@ public class ExperienceService {
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
-
-
+    /**
+     * Reacts to a user favoriting a TV show. If conditions are met, sends a recommendation email
+     * with 3 recommended TV shows of similar genres. Ensures emails are sent at most once every 250ms
+     * and with a cooldown of 2 days between recommendation emails.
+     *
+     * @param userId The ID of the user who favorited a TV show
+     */
     @Async
     @Transactional
-    public void reactToFavorite(UUID userId){
-        if(LocalDateTime.now().isBefore(lastExecution.plus(Duration.ofMillis(250)))){
-            // execute at most once each 250ms
+    public void reactToFavorite(UUID userId) {
+        // Rate limiting: execute at most once every 250ms
+        if (LocalDateTime.now().isBefore(lastExecution.plus(Duration.ofMillis(250)))) {
             return;
         }
         lastExecution = LocalDateTime.now();
 
         var lastEmail = emailRepository.findByUserIdAndTypeOrderBySentAtDesc(userId, "recommendation");
-        var userFavorites = userFavoriteTvShowRepository.findFirst3ByUserIdOrderByFavoritedAtDesc(userId);
+        var userFavorites = userFavoriteTvShowRepository.findFirst3ByUserIdOrderByFavoritedAtDesc(userId); // ordered by latest favorites
 
-        var cooldownOver = lastEmail.isEmpty() || LocalDateTime.now().isAfter(lastEmail.get().getSentAt().plus(Duration.ofDays(2)));
+        boolean cooldownOver = lastEmail.isEmpty() ||
+                LocalDateTime.now().isAfter(lastEmail.get().getSentAt().plus(Duration.ofDays(2)));
 
-        if(!cooldownOver || userFavorites.size() != 3){
+        // Only send recommendations if cooldown is over and user has more than 3 favorite shows
+        if (!cooldownOver || userFavorites.size() != 3) {
             return;
         }
 
-        var genreIds = userFavorites
-                .stream()
-                .map(c ->
-                        c.getTvShow().getTvShowGenres()
-                                .stream().map(tg -> tg.getGenre().getId())
-                                .toList()
-                )
-                .flatMap(List::stream)
+        var genreIds = userFavorites.stream()
+                .flatMap(fav -> fav.getTvShow().getTvShowGenres().stream()
+                        .map(tg -> tg.getGenre().getId()))
                 .toList();
 
-        var shows = tvShowRepository.findRecommendations(userId, genreIds, PageRequest.of(0,3));
-        var recommendations = shows.stream().map(x -> new TvShowRecommendation(
-                x.getName(),
-                x.getPosterUrl(),
-                frontendUrl + "/tv-shows/" + x.getId()
-        )).toList();
+        var shows = tvShowRepository.findRecommendations(userId, genreIds, PageRequest.of(0, 3));
+        var recommendations = shows.stream()
+                .map(x -> new TvShowRecommendation(
+                        x.getName(),
+                        x.getPosterUrl(),
+                        frontendUrl + "/tv-shows/" + x.getId()
+                ))
+                .toList();
 
-        if(recommendations.size() < 3)
+        if (recommendations.size() < 3) {
             return;
+        }
 
         emailService.sendTvShowRecommendationsEmail(
                 userFavorites.getFirst().getUser().getEmail(),
@@ -76,6 +85,5 @@ public class ExperienceService {
                 userFavorites.getFirst().getUser(),
                 recommendations
         );
-
     }
 }
