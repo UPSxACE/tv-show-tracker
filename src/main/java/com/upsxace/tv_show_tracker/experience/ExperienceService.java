@@ -50,8 +50,17 @@ public class ExperienceService {
         }
         lastExecution = LocalDateTime.now();
 
+        reactToFavoriteSync(userId);
+    }
+
+    /**
+     * Core synchronous logic for sending recommendation emails.
+     * This can be tested easily without dealing with @Async threads.
+     */
+    @Transactional
+    protected void reactToFavoriteSync(UUID userId) {
         var lastEmail = emailRepository.findByUserIdAndTypeOrderBySentAtDesc(userId, "recommendation");
-        var userFavorites = userFavoriteTvShowRepository.findFirst3ByUserIdOrderByFavoritedAtDesc(userId); // ordered by latest favorites
+        var userFavorites = userFavoriteTvShowRepository.findFirst3ByUserIdOrderByFavoritedAtDesc(userId);
 
         boolean cooldownOver = lastEmail.isEmpty() ||
                 LocalDateTime.now().isAfter(lastEmail.get().getSentAt().plus(Duration.ofDays(2)));
