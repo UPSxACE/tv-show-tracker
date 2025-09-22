@@ -5,21 +5,23 @@ A Spring Boot application providing a GraphQL API for tracking TV shows, actors,
 The backend:
 * GraphQL api
 * Has a Data Collector module that imports data from external api to database on the background (up to configured limit of database size)
+* Rate-limiting on external api calls
 * Users can register, authenticate and save favorite tv shows
 * Everyone can publicly query the movies and actors
 * Filter movies by genre and sort by popularity, average votes, first air date, id or name
 * Paginated responses
 * Passwords encrypted with Argon2id
 * Jwt-based authentication through cookies (access and refresh) inspired on Clerk architecture
-  * also accepts access token on authentication header
-  * refresh token is stored http-only cookie
-  * access tokens expire in 60 seconds in production, but are long-living in development
+    * also accepts access token on authentication header
+    * refresh token is stored http-only cookie
+    * access tokens expire in 60 seconds in production, but are long-living in development
 * Most queries were optimized
 * Most queries and mutations are n+1 safe
 * Sends email through SMTP
 * Automatic email recommendations each 2 days
 * Endpoint to delete data to comply to RGPD
-* Unit tests for most relevant classes
+* Docker
+* Unit tests with mocking for most relevant classes
 
 The frontend:
 * Fully responsive
