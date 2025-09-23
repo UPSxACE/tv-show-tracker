@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 @Controller
 @RequiredArgsConstructor
 public class UserController {
-
     private final AuthService authService;
     private final JwtConfig jwtConfig;
     private final TvShowService tvShowService;
@@ -77,6 +76,17 @@ public class UserController {
 
         context.put("accessToken", TokenCookieUtils.getRefreshTokenCookie(jwtConfig, result.getAccessToken()));
         return new JwtResponse(result.getAccessToken());
+    }
+
+    /**
+     * Returns the session information for the current user, if available.
+     *
+     * @param userCtx an {@link Optional} containing the current user's context, if present
+     * @return the {@link SessionInfo} of the current user, or {@code null} if no user is present
+     */
+    @QueryMapping
+    public SessionInfo sessionInfo(@ContextValue Optional<UserContext> userCtx){
+        return userCtx.map(userService::getSessionInfo).orElse(null);
     }
 
     /**

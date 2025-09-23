@@ -1,4 +1,5 @@
 type Query {
+    sessionInfo: SessionInfo
     allTvShows(input: AllTvShowsInput): AllTvShowsPage!
     getTvShow(id: Int!): TvShow
     favoriteTvShows(input: FavoriteTvShowsInput!): FavoriteTvShowsPage!
@@ -72,6 +73,12 @@ type UserFavoriteTvShow {
     id: ID!
     tvShow: TvShow!
     favoritedAt: String!
+}
+
+type SessionInfo {
+    id: ID!
+    username: String!
+    avatarUrl: String
 }
 
 type AllTvShowsPage {

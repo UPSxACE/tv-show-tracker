@@ -8,6 +8,7 @@ import com.upsxace.tv_show_tracker.tv_show.repository.TvShowRepository;
 import com.upsxace.tv_show_tracker.user.entity.User;
 import com.upsxace.tv_show_tracker.user.entity.UserFavoriteTvShow;
 import com.upsxace.tv_show_tracker.user.graphql.FavoriteTvShowsInput;
+import com.upsxace.tv_show_tracker.user.graphql.SessionInfo;
 import com.upsxace.tv_show_tracker.user.repository.UserFavoriteTvShowRepository;
 import com.upsxace.tv_show_tracker.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -146,5 +147,20 @@ public class UserService implements UserDetailsService {
     public Page<UserFavoriteTvShow> getFavoriteShows(FavoriteTvShowsInput input, UserContext userCtx) {
         Pageable pageable = createPageable(input);
         return userFavoriteTvShowRepository.findAllByUserId(pageable, userCtx.getId());
+    }
+
+    /**
+     * Retrieves the session information for the given user context.
+     *
+     * <p>This method looks up the user by ID from the {@code UserContext}. If the user
+     * does not exist, an {@link IllegalAccessError} is thrown. Otherwise, it constructs
+     * and returns a {@link SessionInfo} object containing the user's ID, username, and avatar URL.
+     *
+     * @param userCtx the context of the user whose session information is to be retrieved
+     * @return a {@link SessionInfo} object containing the user's ID, username, and avatar URL
+     */
+    public SessionInfo getSessionInfo(UserContext userCtx){
+        var user = userRepository.findById(userCtx.getId()).orElseThrow(IllegalStateException::new);
+        return new SessionInfo(user.getId(), user.getUsername(), user.getAvatarUrl());
     }
 }
