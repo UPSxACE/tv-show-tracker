@@ -5,6 +5,7 @@ import com.upsxace.tv_show_tracker.actor.entity.Actor;
 import com.upsxace.tv_show_tracker.actor.graphql.AllActorsInput;
 import com.upsxace.tv_show_tracker.actor.repository.ActorCreditRepository;
 import com.upsxace.tv_show_tracker.actor.repository.ActorRepository;
+import com.upsxace.tv_show_tracker.common.exceptions.NotFoundException;
 import com.upsxace.tv_show_tracker.data_collector.http.TmdbService;
 import com.upsxace.tv_show_tracker.tv_show.repository.TvShowRepository;
 import lombok.RequiredArgsConstructor;
@@ -88,7 +89,7 @@ public class ActorService {
         var credits = actorCreditRepository.findAll(example);
 
         if(credits.isEmpty()){
-            var actor = actorRepository.findById(actorId).orElseThrow(IllegalStateException::new); // TODO replace by not found error
+            var actor = actorRepository.findById(actorId).orElseThrow(NotFoundException::new);
             tmdbService.discoverActorCredits(actor, actor.getTmdbId());
             return actorCreditRepository.findAll(example);
         }
