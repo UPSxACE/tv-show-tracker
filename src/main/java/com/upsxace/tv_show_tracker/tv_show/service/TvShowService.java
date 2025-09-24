@@ -1,10 +1,12 @@
 package com.upsxace.tv_show_tracker.tv_show.service;
 
+import com.upsxace.tv_show_tracker.common.jwt.UserContext;
 import com.upsxace.tv_show_tracker.data_collector.http.TmdbService;
 import com.upsxace.tv_show_tracker.tv_show.graphql.AllTvShowsInput;
 import com.upsxace.tv_show_tracker.tv_show.graphql.TvShowDto;
 import com.upsxace.tv_show_tracker.tv_show.mapper.TvShowMapper;
 import com.upsxace.tv_show_tracker.tv_show.repository.TvShowRepository;
+import com.upsxace.tv_show_tracker.user.entity.UserFavoriteTvShow;
 import com.upsxace.tv_show_tracker.user.repository.UserFavoriteTvShowRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
@@ -106,5 +108,21 @@ public class TvShowService {
      */
     public List<TvShowDto> getAllById(List<Long> ids) {
         return tvShowMapper.toDtos(tvShowRepository.findAllByIdIn(ids));
+    }
+
+    /**
+     * Retrieves the list of favorite TV shows for the given user, limited to the specified show IDs.
+     * <p>
+     * This method queries the persistence layer to find all {@link UserFavoriteTvShow}
+     * entities that match both the provided list of TV show IDs and the current user's ID.
+     * </p>
+     *
+     * @param ids      the list of TV show IDs to filter against
+     * @param userCtx  the context containing the current user's information (used to extract the user ID)
+     * @return a list of {@link UserFavoriteTvShow} entities corresponding to the user's favorites
+     *         among the given show IDs; may be empty if none are found
+     */
+    public List<UserFavoriteTvShow> getUserFavoritesByShowId(List<Long> ids, UserContext userCtx){
+        return userFavoriteTvShowRepository.findAllByTvShowIdInAndUserId(ids, userCtx.getId());
     }
 }

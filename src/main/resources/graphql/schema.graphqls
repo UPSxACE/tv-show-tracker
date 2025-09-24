@@ -34,6 +34,7 @@ type TvShow {
     seasons: [Season!]!
     genres: [Genre!]!
     actorCredits: [ActorCredit!]!
+    favorite: Boolean
 }
 
 type Actor {

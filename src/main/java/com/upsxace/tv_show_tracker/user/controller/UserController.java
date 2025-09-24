@@ -74,7 +74,7 @@ public class UserController {
         var result = authService.refreshToken(currentRefreshToken.get()).orElse(null);
         if (result == null) return null;
 
-        context.put("accessToken", TokenCookieUtils.getRefreshTokenCookie(jwtConfig, result.getAccessToken()));
+        context.put("accessToken", TokenCookieUtils.getAccessTokenCookie(jwtConfig, result.getAccessToken()));
         return new JwtResponse(result.getAccessToken());
     }
 

@@ -12,6 +12,8 @@ import java.util.UUID;
 public interface UserFavoriteTvShowRepository extends JpaRepository<UserFavoriteTvShow, Long> {
     @EntityGraph(attributePaths = "tvShow")
     Page<UserFavoriteTvShow> findAllByUserId(Pageable pageable, UUID userId);
+    @EntityGraph(attributePaths = "tvShow")
+    List<UserFavoriteTvShow> findAllByTvShowIdInAndUserId(List<Long> tvShowIds, UUID userId);
     @EntityGraph(attributePaths = {"tvShow"})
     List<UserFavoriteTvShow> findFirst3ByUserIdOrderByFavoritedAtDesc(UUID userId);
 

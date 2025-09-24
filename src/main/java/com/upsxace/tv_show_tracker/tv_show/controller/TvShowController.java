@@ -2,6 +2,7 @@ package com.upsxace.tv_show_tracker.tv_show.controller;
 
 import com.upsxace.tv_show_tracker.actor.entity.ActorCredit;
 import com.upsxace.tv_show_tracker.actor.service.ActorService;
+import com.upsxace.tv_show_tracker.common.jwt.UserContext;
 import com.upsxace.tv_show_tracker.tv_show.service.TvShowService;
 import com.upsxace.tv_show_tracker.tv_show.graphql.AllTvShowsInput;
 import com.upsxace.tv_show_tracker.tv_show.graphql.TvShowDto;
@@ -9,11 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.BatchMapping;
+import org.springframework.graphql.data.method.annotation.ContextValue;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -65,6 +66,49 @@ public class TvShowController {
 
         return tvShows.stream()
                 .map(t -> creditsByTvShowId.getOrDefault(t.getId(), List.of()))
+                .toList();
+    }
+
+    /**
+     * Batch mapping resolver for GraphQL to determine if a list of TvShows are favorites
+     * for the current user.
+     *
+     * <p>This returns a {@code List<Optional<Boolean>>} instead of {@code List<Boolean>}
+     * because @BatchMapping in Spring GraphQL does not allow null elements in the returned list.
+     * Wrapping Boolean values in Optional allows us to explicitly represent three states:
+     * <ul>
+     *     <li>{@code Optional.of(true)} — the show is a favorite</li>
+     *     <li>{@code Optional.of(false)} — the show is not a favorite</li>
+     *     <li>{@code Optional.empty()} — the favorite state is unknown (e.g., no user context)</li>
+     * </ul>
+     *
+     * @param tvShows  the list of TvShow DTOs to resolve favorites for
+     * @param userCtx  optional user context (may be empty if no user is logged in)
+     * @return a list of Optional<Boolean> indicating favorite status for each TvShow
+     */
+    @BatchMapping(typeName = "TvShow")
+    public List<Optional<Boolean>> favorite(
+            List<TvShowDto> tvShows,
+            @ContextValue Optional<UserContext> userCtx
+    ) {
+
+        if (userCtx.isEmpty())
+            return Collections.nCopies(tvShows.size(), Optional.empty());
+
+        var tvShowIds = tvShows.stream()
+                .map(TvShowDto::getId)
+                .toList();
+
+        var userFavorites = tvShowService.getUserFavoritesByShowId(tvShowIds, userCtx.get());
+
+        Map<Long, Optional<Boolean>> favoriteByShowId = userFavorites.stream()
+                .collect(Collectors.toMap(
+                        u -> u.getTvShow().getId(),
+                        u -> Optional.of(true)
+                ));
+
+        return tvShows.stream()
+                .map(t -> favoriteByShowId.getOrDefault(t.getId(), Optional.of(false)))
                 .toList();
     }
 }
