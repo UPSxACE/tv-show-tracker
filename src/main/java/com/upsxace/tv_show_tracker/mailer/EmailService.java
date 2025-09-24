@@ -5,6 +5,7 @@ import com.upsxace.tv_show_tracker.user.entity.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -17,6 +18,7 @@ import java.util.List;
 /**
  * Service for sending emails and recording email sending attempts.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -72,7 +74,8 @@ public class EmailService {
             email.setConfirmedAt(LocalDateTime.now());
             emailRepository.save(email);
         } catch (Exception e) {
-            // Silent fail; email success remains false
+            // email success remains false
+            log.error("An exception was thrown while sending an email", e);
         }
     }
 }
